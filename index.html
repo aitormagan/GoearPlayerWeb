@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>GoearDownloader v 2.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+			padding-bottom: 60px; /* 60px to make the container go all the way to the top of the bottombar */
+        }
+    </style>
+</head>
+
+<body>
+
+<!--[if lt IE 10]> 
+	<script>
+		window.location = "update_browser.html";
+	</script>
+<![endif]-->
+
+<!-- Modals -->
+<div id="loadingModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h3 class="modal-title">Cargando...</h3>
+			</div>
+		<div class="modal-body">
+			<div class="progress progress-striped active">
+				<div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+			</div>
+		</div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div id="betaModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h3 class="modal-title" id="betaLabel">Funcionalidad en pruebas</h3>
+			</div>
+			<div class="modal-body">
+			<p>La funcionalidad que estás a punto de utilizar se encuentra en pruebas. Es posible que surjan algunos errores durante la utilización de la misma. Así mismo es posible que se produzcan cambios en el funcionamiento hasta su versión final</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="playingAllModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 class="modal-title" id="playingAllLabel">Reproducir todo está activado</h3>
+			</div>
+			<div class="modal-body">
+			<p>El modo <strong>Reproducir todas</strong> está activado. Realizar una nueva búsqueda desactivará este modo aunque la canción que se está reproduciendo <strong>NO</strong> parará de sonar. ¿Continuar con la búsqueda?</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
+				<button id="btnConfirmSearch" class="btn btn-primary" data-dismiss="modal">Sí</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="errorModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 class="modal-title" id="errorLabel">Error</h3>
+			</div>
+			<div class="modal-body">
+				<div class="alert alert-danger">
+					<strong>Ooops!! Por algún motivo tu solicitud no se ha podido completar. Inténtalo de nuevo más tarde.</strong>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="noResultsModal" class="modal fade" >
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 class="modal-title" id="noResultsLabel">Sin Resultados</h3>
+			</div>
+			<div class="modal-body">
+				<div class="alert alert-warning">
+					<strong>Ooops!! No se han encontrado (más) resultados para esta búsqueda.</strong>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="rightButtonModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 class="modal-title" id="rightButtonLabel">Descargar Canción</h3>
+			</div>
+			<div class="modal-body">
+				<p>Para descargar la canción pulsa con el botón derecho (o pulsación larga en tablets y smartphones) sobre <em><strong>Descargar Canción »</strong></em> y selecciona 'Guardar Enlace Como...' <em>(o similar)</em>.</p>
+				<p>En algunos navegadores (Internet Explorer v10+, Google Chrome, Mozilla Firefox v21+ para Windows 7/8) también puedes pulsar con el botón derecho sobre el <strong>reproductor</strong> y seleccionar 'Guardar audio como...'</p>
+				<!--<div class="alert">
+					<strong>ATENCIÓN:</strong> Es posible que si tardas mucho en descargar la canción no se inicie la descarga de la misma. En caso de que esto ocurra, pincha sobre el botón de actualización que aparece al lado del texto <em><strong>Descargar Canción »</strong></em> y vuelve a intentar descargar la canción.
+				</div>-->
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="directSearchModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 class="modal-title" id="directSearchLabel">Búsqueda Incorrecta</h3>
+			</div>
+			<div class="modal-body">
+				<p>Lo sentimos, pero este tipo de búsquedas aún no están implementadas. Si quieres oír directamente la canción o la playlist, puedes acceder directamente a Goear. En caso de querer oír dicha canción o playlist dentro de esta web, debes usar el formulario de búsqueda para encontrar, por su nombre, la canción o playlist que quieres reproducir. Si quieres descargar esta canción o playlist, debes utilizar la versión de escritorio. Sentimos las molestias ocasionadas.</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="downloadPlaylistModal" class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 class="modal-title" id="downloadPlaylistLabel">Descargar Playlist</h3>
+			</div>
+			<div class="modal-body">
+				<p>Descargar una lista de canciones puede llegar a ser un proceso tedioso. Tienes dos opciones: </p>
+				<ol>
+				  <li><strong>Descargarte las canciones una a una</strong></li>
+				  <li><strong>Usar la versión de escritorio:</strong> Con la versión de escritorio puedes descargar una playlist de una forma rápida y cómoda. Para descargar esta lista lo único que tienes que hacer es abrir la aplicación e introducir <strong>playlist:<span id="playlistdownloadid"></span></strong> y todas las canciones comenzarán a descargarse en el directorio que tú indiques sin que tengas que preocuparte de nada más.</li>
+				</ol>
+			</div>
+			<div class="modal-footer">
+				<button id="btnDownloadDesktopVersion" class="btn btn-primary" data-dismiss="modal">Descargar versión de escritorio</button>
+				<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+	<!--<div style="position: relative; float: right; text-align: center; right: 18%;"><p class="navbar-text">Hola</p></div>-->
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">GoearDownoader</a>
+        </div>
+        <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#online" data-toggle="tab" id="onlineBtn">Online</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Escritorio <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+							<li><a href="#desktop" data-toggle="tab" id="downloadDesktopBtn">Descarga</a></li>
+							<li><a href="#reports" data-toggle="tab" id="reportsBtn">Informes de Error</a></li>
+							<li><a href="#help" data-toggle="tab" id="helpBtn">Ayuda</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#android" data-toggle="tab">Android</a></li>
+                    <!--<li><a href="#errors" data-toggle="tab">Informes de Error</a></li>
+                    <li><a href="#help" data-toggle="tab">Ayuda</a></li> -->
+                    <li><a href="#about" data-toggle="tab" id="aboutBtn">Acerca de</a></li>
+                </ul>
+				<ul class="nav navbar-nav navbar-right visible-lg">
+					<li><a href="#" id="navBarInfoSong"><strong id="actualSong"></strong></a></li>
+					<li><a href="#" id="navBarBackwardButton"><span class="glyphicon glyphicon-backward"></span></a></li>
+					<li><a href="#" id="navBarPlayButton"><span class="glyphicon glyphicon-play"></span></a></li>
+					<li><a href="#" id="navBarPauseButton" class ="hidden"><span class="glyphicon glyphicon-pause"></span></a></li>
+					<li><a href="#" id="navBarForwardButton"><span class="glyphicon glyphicon-forward"></span></a></li>
+				</ul>
+            </div><!--/.nav-collapse  -->
+        </div>
+</div>
+
+<nav id="tipsNavBar" class="navbar navbar-default navbar-fixed-bottom hidden-xs">
+        <div class="container">
+			<div class="nav navbar-nav">
+				<p class="navbar-text" id="tipParagraph">
+					
+				</p>
+			</div>
+			<div class="nav navbar-nav navbar-right">
+				<p class="navbar-text">
+					<span id="btnPrevTip" class="glyphicon glyphicon-chevron-left" style="cursor: pointer; "></span>
+					<span id="tipPosition"></span>
+					<span id="btnNextTip" class="glyphicon glyphicon-chevron-right" style="cursor: pointer; "></span>
+					<span id="btnRemoveTips" class="glyphicon glyphicon-remove" style="cursor: pointer; "></span>
+				</p>
+			</div>
+        </div>
+</nav>
+
+<!--<nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container">
+				<ul class="nav navbar-nav visible-lg">
+					<li><a href="#" id="navBarBackwardButton"><span class="glyphicon glyphicon-backward"></span></a></li>
+					<li><a href="#" id="navBarPlayButton"><span class="glyphicon glyphicon-play"></span></a></li>
+					<li><a href="#" id="navBarPauseButton" class ="hidden"><span class="glyphicon glyphicon-pause"></span></a></li>
+					<li><a href="#" id="navBarForwardButton"><span class="glyphicon glyphicon-forward"></span></a></li>
+					<li><a href="#" id="navBarInfoSong"><strong id="actualSong"></strong></a></li>
+				</ul>
+        </div>
+</nav>-->
+
+<!--<div class="navbar navbar-fixed-bottom">
+    <div class="navbar-inner">
+        <div class="container">
+            <div class="navbar-collapse collapse">
+                <p class="text-center" style="margin: 10px 10px 10px">Powered by <a href="http://goear.com" target="_blank">Goear</a></p>
+            </div>
+        </div>
+    </div>
+</div>-->
+
+<div class="container tab-content">
+
+    <div class="tab-pane active" id="online">
+
+        <h1>Versión Online</h1>
+
+		<div class="row" style="margin-bottom: 15px;"> 
+			<form id="formOnline">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-7">
+						<div class="col-sm-3">
+							<select id="searchType" class="form-control">
+								<option value="songs" selected="selected">Canciones</option>
+								<option value="playlists">Listas</option>
+							</select>
+						</div>
+						<div class="input-group">
+							<input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
+							<span class="input-group-btn">
+								<button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span></button>
+							</span>
+						</div>
+					</div>
+			</form>
+			<!--<form onsubmit="updateSearch(); return false" class="form-inline" role="form">
+			  	<div class="form-group col-lg-2">
+					<select id="searchType" class="form-control">
+						<option value="songs" selected="selected">Canciones</option>
+						<option value="playlists">Listas</option>
+					</select>
+			  	</div>
+			  	<div class="form-group col-lg-6">
+					<input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
+			  	</div>
+				<button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span>
+			</form>-->
+		</div>
+
+        <div class="row">
+
+            <div class="col-md-12 hidden" id="mainDiv">
+
+                <table class="table table-hover" id="songsTable">
+                    <thead>
+                    <tr>
+					    <th></th>
+                        <th>Canción</th>
+                        <th>Artista</th>
+                        <th>Duración</th>
+                    </tr>
+                    </thead>
+                    <tbody id="songs"></tbody>
+                </table>
+
+                <table class="table table-hover" id="playlistTable">
+                    <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Duración</th>
+                        <th>Nº de canciones</th>
+                    </tr>
+                    </thead>
+                    <tbody id="playlists"></tbody>
+                </table>
+
+                <p class="text-right">
+			<button id="downloadPlayListButton" class="btn btn-default hidden"><i class="glyphicon glyphicon-download"></i> Descargar lista</button>
+			<button id="cancelPlayAllButton" class="btn btn-default hidden"><i class="glyphicon glyphicon-stop"></i> Parar Reproducir todo</button>
+			<button id="playAllButton" class="btn btn-default hidden"><i class="glyphicon glyphicon-play"></i> Reproducir todo</button>
+			<button id="loadMoreBtn" class="btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Cargar más</button>
+		</p>
+
+            </div>
+            <div class="col-md-4 hidden" id="playerDiv">
+
+                <div id="player">
+                    <p class="text-center" id="playerP">
+						<img id="songimg" class="img-thumbnail" src="img/1x1.png" alt="Imagen grupo/artista" style="width: 95%" />
+						<br /><br id="lastBR"/><br />
+						<em>
+							<a id="downloadLink" title="Descargar Canción" href="#" style="text-decoration: none;">
+								<i class="glyphicon glyphicon-download"></i> Descargar Canción » </a>
+							<!--<i title="Actualizar dirección de descarga. Pincha aquí cuando al intentar descargar la canción no ocurra nada" id="updateLink" style="cursor: pointer" class="icon-refresh"></i>-->
+						</em>
+                    </p>
+
+                    <dl class="dl-horizontal">
+                        <dt>Canción</dt>
+                        <dd id="title"><em>Cargando...</em></dd>
+                        <dt>Artista</dt>
+                        <dd id="artist"><em>Cargando...</em></dd>
+                        <dt>Duración</dt>
+                        <dd id="songtime"><em>Cargando...</em></dd>
+			<dt>ID Goear</dt>
+                        <dd id="goearID"><em>Cargando...</em></dd>
+                        <dt>Tamaño</dt>
+                        <dd id="size"><em>Cargando...</em></dd>
+                    </dl>
+					<!--
+					<p class="text-center">
+						<a title="Share via Twitter" target="_blank" href="https://twitter.com/intent/tweet?text=Escuchando música en GoearDownlaoder v2"><img alt="Twitter" src="img/twitter.png" width="80px"/></a>
+						<img alt="Facebook" src="img/facebook.png" width="50px"/>
+					</p>
+					-->
+                </div>
+
+
+            </div>
+        </div>
+
+
+    </div> <!-- /container -->
+
+    <div class="tab-pane" id="desktop">
+	
+	    <h1>Versión de Escritorio</h1>
+        <p>¡Usar GoearDownloader en Java es realmente sencillo! Sólo tienes que descargarte el archivo que tienes a continuación y ejecutarlo. Para poder ejecutar el archivo lo único que necesitas tener instalado en tu ordenador es la máquina virtual de Java que muchos ordenadores ya llevan instalada.</p>
+        <p>La versión actual del programa es la <strong>121026</strong> publicada el <strong>26 de Octubre de 2012</strong>. Una vez que te hayas bajado una versión no tienes que preocuparte de bajarte nuevas versiones ya que el programa se actualiza automáticamente.</p>
+        <p><a title="Descargar GoearDownloader" onclick="javascript:window.alert('Recuerda que la primera vez que utilizas la aplicación estas aceptando los Términos de Uso y que por ello es importante que los leas antes de descargar la aplicación.')" href="http://goeardownloader.webcindario.com/?action=download&amp;type=exe" target="_self"><strong>¡¡¡Descargar GoearDownloader versión 1.2!!! »</strong></a></p>
+        <p><strong>IMPORTANTE: Al comenzar a utilizar GoearDownloader estás aceptando los <a title="Ver Términos de Uso" onclick="javascript:terms_viewed = true;" target="_blank" href="/terms.htm">Términos de Uso</a> de la aplicación y por ello es muy importante que te los leas antes de empezar a utilizar la aplicación.</strong></p>
+
+    </div>
+
+    <div class="tab-pane" id="android">
+
+
+
+        <h1>Versión para Android</h1>
+        <p>Si tienes un teléfono Android lo más cómodo es que descargues la aplicación que te permite buscar y descargar música de forma más cómoda. <strong>Para poder instalar esta aplicación es necesario que habilites la instalación de aplicaciones desde fuentes externas</strong> dentro del menú de configuración de tu teléfono.</p>
+        <a title="Descargar GoearDownloader" href="http://dl.dropbox.com/u/13729498/GoearPlayer.apk" target="_self"><strong>¡¡¡Descarga GoearDownloader para Android!!! »</strong></a>
+
+
+    </div>
+
+    <div class="tab-pane" id="reports">
+
+
+
+        <h1>Informes de Error</h1>
+        <p>Si durante el uso de la versión de escritorio de GoearDownlaoder has tenido algún error y lo has reportado, aquí podrás consultar el estado de la incidencia y ver los comentarios hechos por el administrador.</p>
+		<form class="form-horizontal"  id="formReports">
+			<div class="form-group">
+				<label class="col-sm-2 control-label" for="reportNumber">Número de Incidencia</label>
+			    <div class="col-sm-3">
+					<input type="text" class="form-control" id="reportNumber" placeholder="Núm. Incidencia" required>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-3">
+					<button type="submit" class="btn btn-default" id="reportButton" data-loading-text="Cargando...">Consultar Informe</button>
+				</div>
+			</div>
+		</form>
+		
+		<div id="report_infoDiv" class="hidden">
+			<h3>Informe sobre Incidencia nº <span id="rep_number"></span></h3>
+			<dl class="dl-horizontal">
+				<dt>Tipo de error</dt>
+				<dd id="rep_errorType"></dd>
+				<dt>ID Goear</dt>
+				<dd id="rep_goearID"></dd>
+				<dt>Versión del programa</dt>
+				<dd id="rep_programVersion"></dd>
+				<dt>Información Adicional</dt>
+				<dd id="rep_additionalInfo"></dd>
+				<dt>Fecha</dt>
+				<dd id="rep_date"></dd>
+				<dt>Solucionado</dt>
+				<dd id="rep_solved"></dd>
+				<dt>Comentarios Admin.</dt>
+				<dd id="rep_adminComments"></dd>
+			</dl>
+		</div>
+		
+		<div id="rep_errDiv" class="alert alert-warning hidden">
+			<!--<button type="button" class="close" data-dismiss="alert">&times;</button>-->
+			<span id="rep_errMsg"></span>
+		</div>
+		
+    </div>
+
+    <div class="tab-pane" id="help">
+
+
+        <h1>Ayuda</h1>
+        <h3><strong>Introducción:</strong></h3>
+        <p style="text-align: justify;">GoearDownloader v 1.2 es una aplicación escrita en Java que te permite descargarte canciones del servicio Goear de manera muy sencilla a tu propio ordenador para que puedas sincronizar dichas canciones con otros dispositivos de audio tales como MP3 o teléfonos móviles o simplemente para disfrutar de las canciones en tu ordenador. El uso de tecnología Java para el funcionamiento del programa permite que pueda ser ejecutado en distintos Sistemas Operativos sin tener que hacer recompilaciones. Sin embargo, la desventaja de usar Java es que hay que instalar una máquina virtual que te permita ejecutar el archivo. Más adelante podrás encontrar un Anexo de cómo instalar Java en un Sistema Operativo Microsoft® Windows.</p>
+        <p style="text-align: justify;">Debido a que el programa guarda una serie de datos para el funcionamiento en futuras sesiones se creará un archivo denominado “goeardownloader.conf”. Dicho archivo almacenará las preferencias que haya seleccionado el usuario. En caso de que el archivo sea modificado y su contenido no sea válido perderás tus preferencias ya que el programa generará automáticamente las preferencias por defecto para su Sistema Operativo. La primera vez que ejecutes el programa estas preferencias se crearán de forma automáticamente por lo que no tienes que preocuparte de crear este archivo en ningún caso.</p>
+
+        <h3><strong>Descargar Canciones:</strong></h3>
+        <p style="text-align: justify;">A continuación se ofrece una visión de la pantalla que verás cuando habrá el programa para proceder a la descarga de canciones:</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/principal.jpg"><img title="Ventana Principal" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/principal-300x23.jpg" alt="Ventana Principal" width="300" height="23" /></a></p>
+        <p style="text-align: justify;">Para proceder a descargar una canción con el programa lo primero que debes hacer es entrar en http://www.goear.com. Allí debes buscar la canción que quieres descargar y seleccionar una de las múltiples opciones que te ofrece Goear. Una vez te encuentres escuchando la canción deseada introduce la URL que sale en el explorador en el cuadro donde pone “Introduzca aquí la dirección de la canción”. Puedes introducir la dirección de forma manual escribiéndola en el cuadro, pero el programa está preparado para que cuando haya una dirección de Goear en el portapapeles, al hacer clic en el cuadro, la dirección se escriba automáticamente. Si por algún motivo esto no funcionase y no quieres escribir la dirección en el cuadro de forma manual, hemos creado un menú llamado “Editar” donde encontrarás las opciones típicas de un editor de texto (Cortar, Copiar, Pegar y Seleccionar Todo).
+            Cuando en el cuadro de texto se encuentre la dirección de Goear sólo tienes que pulsar “Enter” en el teclado o el botón “Comenzar Descarga”. El programa comenzará a analizar la dirección introducida. Se producirá una conexión a los servidores de Goear que permitirá determinar si la dirección introducida es correcta y además se podrá determinar cuál es la dirección del archivo MP3.</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/analizando.jpg"><img class="size-medium wp-image-28" title="Analizando" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/analizando-300x34.jpg" alt="Analizando" width="300" height="34" /></a></p>
+        <p style="text-align: justify;">En caso de que la dirección sea incorrecta (o que no se disponga de conexión a Internet) se mostrará un mensaje de error informando del error que se haya producido. En caso contrario, y según las preferencias del usuario, se mostrará un mensaje para que seleccione la carpeta donde se descargará la canción (este cuadro puede no llegar a mostrarse si el usuario así lo decide seleccionando que las canciones se descarguen automáticamente en una carpeta directamente).
+            Cuando se haya seleccionado la carpeta de descarga se procederá a la descarga del archivo. En la parte inferior del programa podrás ver cuál es el nombre y artista de la canción, el porcentaje de la descarga, la cantidad de información que ya ha sido descargada, el tiempo estimado que resta para completar la descarga y la velocidad media de descarga.</p>
+
+
+        <p class="text-center"><a href="../wp/wp-content/uploads/descargando-multi.jpg"><img class="size-medium wp-image-182" title="Ventana en MultiDescarga" src="../wp/wp-content/uploads/descargando-multi-300x50.jpg" alt="Ventana en MultiDescarga" width="300" height="50" /></a>
+        </p>
+        <p style="text-align: justify;">GoearDownloader ofrece además multidescarga que te permite descargar varias canciones simultáneamente. Cuando una canción esté siendo bajada podrás iniciar la descarga de otra canción (o una lista de canciones) introduciendo su dirección en la barra de descargas.</p>
+        <p style="text-align: justify;"><strong>Introducir Identificador:</strong> Es posible que en algunas situaciones GoearDownloader no sea capaz de detectar el identificador de la canción que deseas descargar. El identificador de una canción de Goear es un código de siete caracteres alfanuméricos. Es muy fácil de identificar y es que en una dirección tipo: <strong>http://www.goear.com/listen/3f253c0/i-gotta-feeling-black-eyed-peas</strong>, el código es el conjunto de caracteres presentes entre <strong>/listen/</strong> y la siguiente <strong>/</strong>. En este caso el identificador sería <strong>3f253co</strong>. Con el identificador, puedes empezar la descarga de una canción de Goear, introduciendo en el campo de descargas lo siguiente: <strong>song:goearID</strong>, donde<strong> goearID </strong>será el identificador de la canción de Goear. Para el ejemplo anterior tendríamos que introducir lo siguiente: <strong>song:3f253co</strong>.</p>
+
+        <h3><strong>Descargar Listas de Canciones:</strong></h3>
+        <p style="text-align: justify;">A partir de la versión 1.2 de GoearDownloader es posible descargar listas de canciones. De la misma forma que con las descargas individuales, para descargar una lista de canciones debes introducir la dirección en el cuadro de descargas. Aparecerá un nuevo panel donde se informará en todo momento el estado de la descarga de la lista. El programa analizará todas las canciones que componen la lista y procederá a descargarlas una a una. En este caso, cuando se arranque la descarga de una lista, no se podrán descargar más archivos hasta que no hayan arrancado todas las descargas de las canciones que componen la lista.</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/descargando_lista.png"><img class="size-medium wp-image-293" title="Descargando Lista" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/descargando_lista-300x98.png" alt="Descargando Lista" width="300" height="98" /></a></p>
+        <p style="text-align: justify;"><strong>Introducir Identificador:</strong> Es posible que en algunas situaciones  GoearDownloader no sea capaz de detectar el identificador de la lista  que deseas descargar. El identificador de una lista de Goear es un  código de siete caracteres alfanuméricos. Es muy fácil de identificar y es que en una dirección tipo: <strong>http://www.goear.com/playlist.php?v=1f27838</strong>, el código es el conjunto de caracteres presentes después de <strong>?v=</strong>. En este caso el identificador sería <strong>1f27838</strong>. Con el identificador, puedes empezar la descarga de una lista de Goear, introduciendo en el campo de descargas lo siguiente: <strong>playlist:goearID</strong>, donde<strong> goearID </strong>será el identificador de la lista de Goear. Para el ejemplo anterior tendríamos que introducir lo siguiente: <strong>playlist:</strong><strong>1f27838</strong>.</p>
+
+        <h3><strong>Herramientas:</strong></h3>
+        <p style="text-align: justify;">El programa dispone de una serie de herramientas que pueden hacerle más placido el uso de este programa. Al hacer clic en “Herramientas” se desplegará el siguiente menú:</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/herramientas1.jpg"><img class="size-full wp-image-163" title="Menú de Herramientas" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/herramientas1.jpg" alt="Menú de Herramientas" width="231" height="147" /></a></p>
+        <p style="text-align: justify;">La opción “Ventana Siempre Visible” le permitirá que la ventana siempre este visible aunque esté trabajando con otros programas. El programa permanecerá visible siempre que no minimice la ventana o que no esté en mitad de una descarga.</p>
+        <p style="text-align: justify;">La opción “Posición Automática” permite al programa colocarse en medio de la pantalla cada vez que se produce un evento tal como comenzar o terminar una descarga de una canción.</p>
+        <p style="text-align: justify;">La opción "Notificar Error Dirección XML" abrirá una incidencia en la página indicando que la dirección de búsqueda de los XML disponible en el servidor no es correcta y por tanto no se pueden realizar descargas con normalidad.</p>
+        <p style="text-align: justify;">La opción "Desactivar Descarga Automática" sólo estará activa mientras este activa la descarga automática. Si seleccionas dicha opción, aunque la descarga automática este activada, se te preguntará la dirección donde descargar la canción hasta que reinicies el programa o desactives dicha opción. Con esto puedes editar el nombre de la canción por si existe algún error  en alguna descarga específica... Si activas esta opción la dirección de  descarga no se actualizará para futuras sesiones y se mostrará como carpeta de descarga la carpeta donde se descargo la última canción (como si se hubiese activado el modo "Conservar Dirección de Descarga durante la misma sesión"). Si quieres que se  almacene la dirección, puedes usar cualquiera del resto de  "Opciones de Descarga" disponible en el menú de configuración del  programa <em>(a continuación...)</em>.</p>
+        <p style="text-align: justify;">Al hacer clic en “Opciones” se abrirá el siguiente diálogo:</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/Preferencias.jpg"><img class="size-medium wp-image-31" title="Preferencias" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/Preferencias-300x163.jpg" alt="" width="300" height="163" /></a></p>
+        <p style="text-align: justify;">Como puede observar, la ventana se encuentra divida en tres grandes secciones: Opciones de Descarga, Solucionar Problemas con las Descargas y Actualizaciones. Estas secciones se detallarán a continuación.</p>
+        <p style="text-align: justify;"><strong><span style="text-decoration: underline;">Opciones de Descarga:</span></strong>
+            Esta opción se refiere a las opciones de descarga del programa que le permitirán elegir por ejemplo cuál es la dirección donde siempre deberán descargando las canciones:</p>
+
+        <ol style="text-align: justify;">
+            <li>El cuadro de texto “Dirección Predeterminada de Descarga” contiene la dirección que siempre mostrará el seleccionador de archivos cuando descargues una canción con el programa. Puedes cambiar esta carpeta haciendo clic en el botón “…”.</li>
+            <li>Si selecciona “Descargar Siempre en Dirección Predeterminada Descarga sin preguntar” el programa no mostrará ningún seleccionador de archivos para que indique donde ha de guardarse la canción que descargue sino que se descargará en la “Dirección Predeterminada de Descarga” automáticamente con el nombre “Artista – Canción.mp3”, sustituyendo “Artista” por el artista de la canción y “Canción” por el nombre de la canción que está descargando.</li>
+            <li>Si selecciona “Actualizar Automáticamente Dirección Predeterminada de Descarga” y cuando descargas una canción cambias la carpeta dónde se descarga dicha canción, la nueva carpeta se convertirá automáticamente en la nueva “Dirección Predeterminada de Descarga”.</li>
+            <li style="text-align: justify;">La opción “Conservar Dirección de Descarga durante la misma sesión” es muy similar a la anterior, pero la carpeta sólo se almacena durante la sesión en funcionamiento. Al iniciar de nuevo el programa la carpeta que mostrará la primera canción descargada será la “Dirección Predeterminada de Descarga”.</li>
+        </ol>
+        <p style="text-align: justify;"><span style="text-decoration: underline;"><strong>Solucionar Problemas de Descarga:</strong></span>
+            Debido a los diversos cambios en Goear se ha creado este menú que permite al programa buscar soluciones a posibles cambios en Goear conectándose al servidor del programa. Si observas que las canciones que se descargan no son las deseadas haga clic en el botón “Auto Solucionar”. El programa se conectará al servidor y buscará la nueva dirección de búsqueda de los XML. En caso de no encontrar ninguna dirección nueva o que no se pueda conectar con el servidor se permitirá editar la dirección de forma manual, aunque se avisará de que esa acción puede dejar el programa inutilizable. En caso de encontrar una dirección de búsqueda de los XML nueva se pondrá en el cuadro de texto y se instará al usuario a guardar las preferencias para descargar las canciones de forma correcta. Además se provee una opción que hará que se busquen soluciones a problemas de descarga siempre que se inicie el programa. Si selecciona esta opción no tienes que preocuparse por posibles errores en las descargas, ya que siempre al iniciar se buscará la dirección de XML más reciente. Cuando se estén buscando Soluciones a problemas de descarga de forma automática al iniciar verás un mensaje informando de ello en la barra de estado:</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/buscando_soluciones_problemas_descarga.jpg"><img class="size-medium wp-image-279" title="Buscando Soluciones a Problemas de Descarga" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/buscando_soluciones_problemas_descarga-300x29.jpg" alt="Buscando Soluciones a Problemas de Descarga" width="300" height="29" /></a></p>
+        <p style="text-align: justify;"><strong><span style="text-decoration: underline;">Actualizaciones:</span></strong>
+            Esta opción permitirá al programa buscar actualizaciones de forma automática al programa al iniciarse. Cuando se estén buscando actualizaciones de forma  automática al iniciar verás un mensaje informando de ello en la barra de  estado:</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/buscando_actualizaciones1.jpg"><img class="size-medium wp-image-280" title="Buscando Actualizaciones" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/buscando_actualizaciones1-300x29.jpg" alt="Buscando Actualizaciones" width="300" height="29" /></a></p>
+        <p style="text-align: justify;">En caso de encontrase actualizaciones se pedirá confirmación al usuario para poder actualizar.</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/confirmar_actualizacion.jpg"><img class="size-medium wp-image-34" title="Confirmar Actualización" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/confirmar_actualizacion-300x73.jpg" alt="Confirmar Actualización" width="300" height="73" /></a></p>
+        <p style="text-align: justify;">Si el usuario acepta la actualización se buscará el archivo “goeardownloader.jar” dentro del mismo directorio dónde se está ejecutando el programa. Si el archivo no es encontrado se procederá a instar al usuario a actualizar el programa de forma manual. Si por el contrario el archivo existe el programa será actualizado siempre que no falle la conexión a Internet.</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/actualizando.jpg"><img class="size-full wp-image-35" title="Actualizando" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/actualizando.jpg" alt="Actualizando" width="261" height="58" /></a></p>
+        <p style="text-align: justify;">Una vez se haya actualizado el programa se ejecutará la nueva versión del programa. En algunos casos es posible que tras la actualización, la nueva versión no se cargue de forma automática. En dichos casos lo único que el usuario debe hacer es volver a cargar el programa.</p>
+        <p style="text-align: justify;"><strong>NOTA</strong>: el usuario puede buscar actualizaciones de forma manual haciendo clic en “Ayuda” &gt; “Buscar Actualizaciones”. El proceso es el mismo que una actualización automática. (esta opción esta disponible sólo cuando no hay descargas activas)</p>
+        <p style="text-align: justify;"><strong>NOTA 2:</strong> En versiones superiores a la 100623, en estos diálogos puede mostrarse un botón denominado "Cancelar" que sirve para cancelar el proceso en curso. Sin embargo, de momento, dicho botón no es del todo funcional ya que en algunas situaciones el proceso en curso no puede detenerse por una llamada bloqueante al sistema. Próximamente intentaremos solucionar este error.</p>
+
+        <h3 style="text-align: justify;"><strong>Mandar Informes de Error:</strong></h3>
+        <p style="text-align: justify;">Bajo diversas circunstancias es posible que se produzcan errores durante la descarga o la ejecución del programa. Para poder solucionar estos problemas es muy importante la colaboración de los usuarios del programa. En ningún caso se enviará información a nuestros servidores sin tu confirmación expresa para cada error que se produzca. Cuando se produzca un error que no debería producirse el usuario verá un cuadro similar al siguiente:</p>
+
+
+        <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/envioinforme.jpg"><img class="size-medium wp-image-36" title="Confirmación Envío de Informe" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/envioinforme-300x106.jpg" alt="Confirmación Envío de Informe" width="300" height="106" /></a></p>
+        <p style="text-align: justify;">Para poder mandar información del error al servidor del programa es necesario que pulses el botón de “Aceptar”. En caso de disponer conexión a Internet y no producirse ningún error la información llegará de forma correcta al servidor. Siempre que se pulse “Aceptar” aunque se produzca un error se agradecerá la colaboración del usuario. En caso de no aceptar el envío de la información se recordará al usuario que sin su colaboración la mejora del programa no es posible.</p>
+        <p style="text-align: justify;">Si decidiste enviar la información, el programa te ofrecerá un identificador de error mediante el cual podrás seguir el estado de tu incidencia (siempre que no haya un problema en el servidor). Para ver el estado de la incidencia haz clic en "Informes de Error", una página que encontrarás en el menú. Allí introduce tu código y podrás ver el estado de tu incidencia así como comentarios del administrador a dicha incidencia.</p>
+        <p style="text-align: justify;"><strong>NOTA:</strong> En ningún caso se almacenará en el servidor ninguna información que pueda identificar quien mandó el reporte.</p>
+
+        <h3><strong>Anexo - Instalando Java:</strong></h3>
+        <p style="text-align: justify;">Como ya hemos dicho anteriormente, para poder ejecutar el programa es necesario tener instalado en tu ordenador la máquina virtual de Java (se recomienda la diseñada por Sun).</p>
+        <p style="text-align: justify;">Lo primero que tienes que hacer para instalar la máquina virtual es bajártela a tu sistema local. Para ello debes entrar en la <a title="Página web Oficial de Java" href="http://www.java.com" target="_blank">página web oficial de Java</a>. Una vez allí deberás pinchar el botón denominado "Descargas" que encontrarás en la parte superior de la página. La página reconocerá automáticamente tu S.O. y en función a ello te ofrecerá la versión de Java correspondiente. Pincha entonces en "Descarga gratuita de Java" y espera a que se baje el archivo. Una vez que el archivo se haya bajado completamente debes instalarlo en tu ordenador como cualquier programa. ¡¡¡Tras finalizar ya podrás usar GoearDownloader perfectamente!!!</p>
+
+        <div id="_mcePaste" style="position: absolute; left: -10000px; top: 1069px; width: 1px; height: 1px; overflow: hidden;">
+
+            <p class="text-center"><a href="http://goeardownloader.webcindario.com/wp/wp-content/uploads/herramientas.jpg"><img class="size-full wp-image-147" title="Menú de Herramientas" src="http://goeardownloader.webcindario.com/wp/wp-content/uploads/herramientas.jpg" alt="Menú de Herramientas" width="204" height="115" /></a></p>
+
+        </div>  
+
+    </div>
+
+    <div class="tab-pane" id="about">
+
+
+        <h1>Acerca de GoearDownloader</h1>
+		<p>GoearDownlaoder es un servicio web que te permite buscar y descargar canciones de manera sencilla del servicio <a href="http://goear.com" target="_blank">Goear</a>. Además, existen dos aplicaciones, una para equipos y otra para smartphones Android, que te permitirán buscar y descargar la música de una manera mucho más rápida.</p>
+		
+		<h3>Links de Interés</h3>
+		<ol>
+			<li><a title="Descargar Código Fuente" href="http://goeardownloader.webcindario.com/?action=download&amp;type=src" target="_self"><strong>Ficheros fuente para la versión de escritorio »</strong></a></li>
+			<li><a title="Abrir Javadoc" href="http://goeardownloader.webcindario.com/doc" target="_blank"><strong>JavaDoc para la versión de escritorio »</strong></a></li>
+			<li><a title="Términos de uso" href="http://goeardownloader.webcindario.com/terms.htm" target="_blank"><strong>Términos de uso de la versión de escritorio »</strong></a></li>
+			<li><a title="Descargar Código Fuente" href="https://github.com/amagan/GoearPlayer" target="_blank"><strong>Repositorio GitHub versión Android »</strong></a></li>
+		</ol>
+
+    </div>
+
+
+
+</div>
+
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="http://code.jquery.com/jquery.js"></script>
+<script type="text/javascript" src="js/swfobject.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/loadPlayer.js"></script>
+<script src="js/logicOnline.js"></script>
+<script src="js/logicReports.js"></script>
+<script src="js/logicTips.js"></script>
+<script src="js/start.js"></script>
+
+</body>
+</html>
