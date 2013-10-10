@@ -232,5 +232,6 @@
     $('#navBarPlayButton').removeClass('hidden');
     $('#playerBtnPlay').removeClass('hidden');
     $('#playerBtnPause').removeClass('hidden');
+    $('#playerBtnRepeat').addClass('hidden');
   }
 })();
