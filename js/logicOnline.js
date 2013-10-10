@@ -638,16 +638,6 @@
   if (audioPlayer) {
     playingAllEnabled = true;
 
-    audioPlayer.addEventListener('play', function() {
-      $('#navBarPauseButton').removeClass('hidden');
-      $('#navBarPlayButton').addClass('hidden');
-    });
-
-    audioPlayer.addEventListener('pause', function() {
-      $('#navBarPauseButton').addClass('hidden');
-      $('#navBarPlayButton').removeClass('hidden');
-    });
-
     audioPlayer.addEventListener('error', function(e) {
       $('#loadingModal').modal('hide');
       $('#errorModal').modal('show');
@@ -669,10 +659,6 @@
         }
       }
     });
-  } else {
-    //Listeners cannot be added to the flash player, so play and pause button must be shown at the same time
-    $('#navBarPauseButton').removeClass('hidden');
-    $('#navBarPlayButton').removeClass('hidden');
   }
 
   //Set actions for navbar player buttons
@@ -684,6 +670,12 @@
     $('#onlineBtn').click();
     return false;
   });
+
+  //Set actions for player buttons
+  $('#playerBtnBackward').click(backward);
+  $('#playerBtnPlay').click(play);
+  $('#playerBtnPause').click(pause);
+  $('#playerBtnForward').click(forward);
 
   //Get focus info
   var focused = true;
