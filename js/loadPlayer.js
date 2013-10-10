@@ -43,7 +43,7 @@
 
     function getMinsAndSecs(secsTot) {
 
-      var retunedValue = '00:00';
+      var returnedValue = '00:00';
 
       function pad(value) {
         return value < 10 ? '0' + value : value;
@@ -169,6 +169,12 @@
       $('#playerBtnPause').addClass('hidden');
       $('#navBarPauseButton').addClass('hidden');
       $('#navBarPlayButton').removeClass('hidden');
+      
+      //Update player
+      updatePlayerPos(0);
+      $('#duration').html('');
+      $('#currentTime').html('');
+
     });
 
     $('#playerBtnRepeat').on('click', function() {
