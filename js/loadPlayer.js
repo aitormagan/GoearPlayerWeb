@@ -49,7 +49,7 @@
         return value < 10 ? '0' + value : value;
       }
 
-      if (!isNaN(secsTot)) {
+      if (!isNaN(secsTot) && secsTot > 0) {
         var mins = Math.floor(secsTot / 60);
         var secs = Math.floor(secsTot % 60);
 
@@ -167,6 +167,8 @@
       //Init pause and play button
       $('#playerBtnPlay').removeClass('hidden');
       $('#playerBtnPause').addClass('hidden');
+      $('#navBarPauseButton').addClass('hidden');
+      $('#navBarPlayButton').removeClass('hidden');
     });
 
     $('#playerBtnRepeat').on('click', function() {
