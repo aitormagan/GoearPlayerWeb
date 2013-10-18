@@ -123,7 +123,7 @@
 				<h3 class="modal-title" id="rightButtonLabel">Descargar Canción</h3>
 			</div>
 			<div class="modal-body">
-				<p>Para descargar la canción pulsa con el botón derecho (o pulsación larga en tablets y smartphones) sobre <em><strong>Descargar Canción »</strong></em> y selecciona 'Guardar Enlace Como...' <em>(o similar)</em>.</p>
+				<p>Para descargar la canción pulsa con el botón derecho (o pulsación larga en tablets y smartphones) sobre el botón denominado <strong><span class="glyphicon glyphicon-download"></span> Descargar</strong> y selecciona <strong>Guardar Enlace Como...</strong> <em>(o similar)</em>.</p>
 				<!--<p>En algunos navegadores (Internet Explorer v10+, Google Chrome, Mozilla Firefox v21+ para Windows 7/8) también puedes pulsar con el botón derecho sobre el <strong>reproductor</strong> y seleccionar 'Guardar audio como...'</p>-->
 				<!--<div class="alert">
 					<strong>ATENCIÓN:</strong> Es posible que si tardas mucho en descargar la canción no se inicie la descarga de la misma. En caso de que esto ocurra, pincha sobre el botón de actualización que aparece al lado del texto <em><strong>Descargar Canción »</strong></em> y vuelve a intentar descargar la canción.
@@ -329,9 +329,9 @@
             <div class="col-md-4 hidden" id="playerDiv">
 
                 <div id="player">
-                    <p class="text-center" id="playerP">
-                        <img id="songimg" class="img-thumbnail" src="img/1x1.png" alt="Imagen grupo/artista" style="width: 100%" />
-                        <div id="playerBarAndVolume" style="text-align: center">
+                    <div class="text-center" id="playerP">
+		        <img id="songimg" class="img-thumbnail" src="img/1x1.png" alt="Imagen grupo/artista" style="width: 100%" />
+                        <div id="playerBarAndVolume" style="text-align: center; margin-top: 10px">
                             <div style="float: left;  padding-right: 10px;"><p id="currentTime" class="text-left"></p></div>
                             <div id="volumeDiv" style="float: right; width: 30%;  padding-left: 10px;">
                                 <div  style="float: left; padding-right: 10px"><span id="volumeIcon" class="glyphicon glyphicon-volume-up" style=" cursor: pointer; "></span></div>
@@ -349,12 +349,12 @@
                         <div id="playerButtons" style="text-align: center">
                             <button type="button" id="playerBtnBackward" class="btn btn-default"><span class="glyphicon glyphicon-backward"></span></button>
                             <button type="button" id="playerBtnPlay" class="btn btn-default"><span class="glyphicon glyphicon-play"></span></button>
-                            <button type="button" id="playerBtnPause" class="btn btn-default" class="hidden"><span class="glyphicon glyphicon-pause"></span></button>
+                            <button type="button" id="playerBtnPause" class="btn btn-default hidden"><span class="glyphicon glyphicon-pause"></span></button>
                             <button type="button" id="playerBtnForward" class="btn btn-default"><span class="glyphicon glyphicon-forward"></span></button>
                             <button type="button" id="playerBtnRepeat" class="btn btn-default" data-toggle="button"><span class="glyphicon glyphicon-repeat"></span></button>
                             <a href="#" id="downloadLink" class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Descargar</a>
                         </div>
-                    </p>
+                    </div>
 
                     <dl class="dl-horizontal">
                         <dt>Canción</dt>
