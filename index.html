@@ -176,6 +176,31 @@
 	</div>
 </div>
 
+<div id="favsModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title" id="favsLabel">Listas de favoritos</h3>
+            </div>
+            <div class="modal-body">
+                <p>Acabas de añadir tu primera canción a la lista de favoritos. Antes de seguir añadiendo canciones vamos a explicarte un poco el funcionamiento de este sistema</p>
+                <ol>
+                    <li>Puedes añadir tantas canciones como quieras.</li>
+                    <li>Para borrar una canción de la lista de favoritos sólo tienes que pinchar en la canción que desees borrar y desmarcar la opción de favorita.</li>
+                    <li>Al hacer uso de este sistema estás aceptando el uso de cookies por parte de esta web. Se establecerá una cookie para guardar las canciones favoritas.</li>
+                    <li>Si tienes deshabilitado el uso de cookies o utilizas navegación privada, cada vez que accedas a la página habrás perdido tu lista de canciones favoritas.</li>
+                    <li>Las listas de canciones son propias a cada navegador, es decir, tendrás una lista de canciones favoritas distinta en cada navegador que uses.</li>
+                    <li>No se puede compartir listas de canciones con amigos u otros dispositivos o navegadores.</li>
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="navbar navbar-inverse navbar-fixed-top">
 	<!--<div style="position: relative; float: right; text-align: center; right: 18%;"><p class="navbar-text">Hola</p></div>-->
     <div class="container">
@@ -260,7 +285,7 @@
 
         <h1>Versión Online</h1>
 
-		<div class="row" style="margin-bottom: 15px;"> 
+        <div class="row" style="margin-bottom: 15px;">
 			<form id="formOnline">
 					<div class="col-sm-2"></div>
 					<div class="col-sm-7">
@@ -276,20 +301,23 @@
 								<button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span></button>
 							</span>
 						</div>
-					</div>
+                    </div>
 			</form>
-			<!--<form onsubmit="updateSearch(); return false" class="form-inline" role="form">
-			  	<div class="form-group col-lg-2">
-					<select id="searchType" class="form-control">
-						<option value="songs" selected="selected">Canciones</option>
-						<option value="playlists">Listas</option>
-					</select>
-			  	</div>
-			  	<div class="form-group col-lg-6">
-					<input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
-			  	</div>
-				<button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span>
-			</form>-->
+
+            <button id="songsViewFavs" class="btn btn-default"><span class="glyphicon glyphicon-star"></span> Favoritas</span></button>
+
+            <!--<form onsubmit="updateSearch(); return false" class="form-inline" role="form">
+                  <div class="form-group col-lg-2">
+                    <select id="searchType" class="form-control">
+                        <option value="songs" selected="selected">Canciones</option>
+                        <option value="playlists">Listas</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-lg-6">
+                    <input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
+                  </div>
+                <button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span>
+            </form>-->
 		</div>
 
         <div class="row">
@@ -353,6 +381,7 @@
                             <button type="button" id="playerBtnPause" class="btn btn-default hidden"><span class="glyphicon glyphicon-pause"></span></button>
                             <button type="button" id="playerBtnForward" class="btn btn-default"><span class="glyphicon glyphicon-forward"></span></button>
                             <button type="button" id="playerBtnRepeat" class="btn btn-default" data-toggle="button"><span class="glyphicon glyphicon-repeat"></span></button>
+                            <button type="button" id="playerBtnFav" class="btn btn-default"><span class="glyphicon glyphicon-star"></span></button>
                             <a href="#" id="downloadLink" class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Descargar</a>
                         </div>
                     </div>

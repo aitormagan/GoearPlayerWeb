@@ -14,7 +14,92 @@
   var playIcon = document.createElement('i');
   var audioPlayer = document.getElementById('audioPlayer');
   var dewPlayer = document.getElementById("dewplayerjs");
+  var favoritesSongs = [];
+  var COOKIE_FAV_NAME = 'favSongs';
+  var showingFavs = false;
 
+  //Cookies functions
+  function getCookie(c_name) {
+
+    var c_value = document.cookie;
+    var c_start = c_value.indexOf(' ' + c_name + '=');
+
+    if (c_start == -1) {
+      c_start = c_value.indexOf(c_name + '=');
+    }
+
+    if (c_start == -1) {
+      c_value = null;
+    } else {
+      c_start = c_value.indexOf('=', c_start) + 1;
+      var c_end = c_value.indexOf(';', c_start);
+
+      if (c_end == -1) {
+        c_end = c_value.length;
+      }
+
+      c_value = decodeURI(c_value.substring(c_start,c_end));
+    }
+
+    return c_value;
+  }
+
+  function setCookie(c_name, value, exdays) {
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() + exdays);
+    var c_value = encodeURI(value) + ((exdays==null) ? '' : '; expires=' + exdate.toUTCString());
+    document.cookie = c_name + "=" + c_value;
+  }
+
+  //Favorites functions
+  function isSongFavorite(songId) {
+
+    var pos = -1;
+    for (var i = 0; i < favoritesSongs.length && pos === -1; i++) {
+      if (favoritesSongs[i].id === songId) {
+        pos = i;
+      }
+    }
+
+    return pos;
+  }
+
+  function showFavsTable() {
+
+    showingFavs = true;
+
+    //Show elements
+    $('#playlistTable').addClass('hidden');
+    $('#songsTable').removeClass('hidden');
+    $('#loadMoreBtn').addClass('hidden');
+    $('#mainDiv').removeClass('hidden');
+    $('#songsViewFavs').addClass('active');
+    $('#songs').empty();
+
+    if (playingAllEnabled) {
+      $('#playAllButton').removeClass('hidden');
+    }
+
+    if (favoritesSongs.length === 0) {
+      var elem = document.createElement('tr');
+      var td = document.createElement('td');
+
+      td.setAttribute('colspan', '4');
+      td.innerHTML = '<p align="center"><em>Aún no tienes canciones favoritas</em></p>';
+
+      elem.appendChild(td);
+      document.getElementById('songs').appendChild(elem);
+
+      $('#playAllButton').addClass('hidden');
+
+    } else {
+      //Simulate response
+      var simulatedJSONResponse = {};
+      simulatedJSONResponse.responseText = JSON.stringify(favoritesSongs);
+      processSongs.apply(simulatedJSONResponse);
+    }
+
+  }
 
   //Auxiliar Functions
   function sendReq(url, method, headers, content, callback) {
@@ -329,6 +414,12 @@
     var img = document.getElementById("songimg");
     img.setAttribute('src',songInfo.imgpath);
 
+    //Update fav button
+    $('#playerBtnFav').removeClass('active');
+    if (isSongFavorite(songInfo.id) !== -1) {
+      $('#playerBtnFav').button('toggle');
+    }
+
     //Update Link
     var link = document.getElementById('downloadLink');
     link.setAttribute('href', songURL);
@@ -592,13 +683,14 @@
           });*/
         }
 
-      } else if (currentSearch !== search.trim() || searchType !== type) {		
+      } else if (showingFavs || (currentSearch !== search.trim() || searchType !== type)) {
         //Only search when current search differs from new search
 
         $('#loadMoreBtn').removeClass('hidden');
         $('#songs').empty();
         //$('#navBarSongList').empty();
         $('#playlists').empty();
+        $('#songsViewFavs').removeClass('active');
       
         cancelPlayAll();
 
@@ -606,6 +698,7 @@
         currentSearch = search;
         searchType = type;
         page = 0;
+        showingFavs = false;
 
         //Start search
         updateURL();    
@@ -676,6 +769,49 @@
   $('#playerBtnPlay').click(play);
   $('#playerBtnPause').click(pause);
   $('#playerBtnForward').click(forward);
+
+  //Init favorites
+  var cookieFavValue = getCookie(COOKIE_FAV_NAME);
+  if (cookieFavValue) {
+    favoritesSongs = JSON.parse(cookieFavValue);
+  }
+
+  //Set action to fire when favorites button is clicked
+  $('#playerBtnFav').click(function() {
+
+    var songInfo = currentRow.info;
+
+    //Look for that song on the fav array
+    var pos = isSongFavorite(songInfo.id);
+
+    if (pos === -1) {
+      //Add song to favorites
+      favoritesSongs.push(songInfo);
+
+      if (favoritesSongs.length === 1) {
+        $('#favsModal').modal('show');
+      }
+    } else {
+      //Remove song from favorites
+      favoritesSongs.splice(pos, 1);
+    }
+
+    //Refresh favs table
+    if (showingFavs) {
+      showFavsTable();
+    }
+
+    //Write cookie
+    setCookie(COOKIE_FAV_NAME, JSON.stringify(favoritesSongs), 365);
+
+    //Toggle button
+    $('#playerBtnFav').button('toggle');
+  });
+
+  $('#songsViewFavs').on('click', showFavsTable);
+
+  //Show favs songs on start
+  showFavsTable();
 
   //Get focus info
   var focused = true;
