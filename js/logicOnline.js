@@ -61,7 +61,7 @@
         var td = document.createElement('td');
 
         td.setAttribute('colspan', '4');
-        td.innerHTML = '<p align="center"><em>Aún no tienes canciones favoritas</em></p>';
+        td.innerHTML = '<p align="center"><em>Aún no tienes canciones favoritas. ¡Reproduce cualquier canción y empieza a agregar canciones a tus favoritas!</em></p>';
 
         elem.appendChild(td);
         document.getElementById('songs').appendChild(elem);
@@ -701,6 +701,12 @@
   $('#btnDownloadDesktopVersion').on('click', function() {
     $('#downloadDesktopBtn').click();
   });
+  
+  //Hide download button on iOS devides
+  var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
+  if (iOS) {
+    $('#downloadLink').addClass('hidden');
+  }
 
   //Set play icon
   playIcon.setAttribute('class','glyphicon glyphicon-play');
