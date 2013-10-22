@@ -15,41 +15,8 @@
   var audioPlayer = document.getElementById('audioPlayer');
   var dewPlayer = document.getElementById("dewplayerjs");
   var favoritesSongs = [];
-  var COOKIE_FAV_NAME = 'favSongs';
+  var FAV_SONGS_ITEM_NAME = 'favSongs';
   var showingFavs = false;
-
-  //Cookies functions
-  function getCookie(c_name) {
-
-    var c_value = document.cookie;
-    var c_start = c_value.indexOf(' ' + c_name + '=');
-
-    if (c_start == -1) {
-      c_start = c_value.indexOf(c_name + '=');
-    }
-
-    if (c_start == -1) {
-      c_value = null;
-    } else {
-      c_start = c_value.indexOf('=', c_start) + 1;
-      var c_end = c_value.indexOf(';', c_start);
-
-      if (c_end == -1) {
-        c_end = c_value.length;
-      }
-
-      c_value = decodeURI(c_value.substring(c_start,c_end));
-    }
-
-    return c_value;
-  }
-
-  function setCookie(c_name, value, exdays) {
-    var exdate = new Date();
-    exdate.setDate(exdate.getDate() + exdays);
-    var c_value = encodeURI(value) + ((exdays==null) ? '' : '; expires=' + exdate.toUTCString());
-    document.cookie = c_name + "=" + c_value;
-  }
 
   //Favorites functions
   function isSongFavorite(songId) {
@@ -782,9 +749,9 @@
   $('#playerBtnForward').click(forward);
 
   //Init favorites
-  var cookieFavValue = getCookie(COOKIE_FAV_NAME);
-  if (cookieFavValue) {
-    favoritesSongs = JSON.parse(cookieFavValue);
+  var favoritesSongsJSON = localStorage.getItem(FAV_SONGS_ITEM_NAME);
+  if (favoritesSongsJSON) {
+    favoritesSongs = JSON.parse(favoritesSongsJSON);
   }
 
   //Set action to fire when favorites button is clicked
@@ -812,8 +779,8 @@
       showFavsTable();
     }
 
-    //Write cookie
-    setCookie(COOKIE_FAV_NAME, JSON.stringify(favoritesSongs), 365);
+    //Write to local storage
+    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
 
     //Toggle button
     $('#playerBtnFav').button('toggle');
