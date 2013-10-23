@@ -11,7 +11,7 @@
   var currentNavBarUpdater = null;
   var searchType;
   var baseTitle = document.title;
-  var playIcon = document.createElement('i');
+  var playIcon = document.createElement('span');
   var audioPlayer = document.getElementById('audioPlayer');
   var dewPlayer = document.getElementById("dewplayerjs");
   var favoritesSongs = [];
@@ -29,6 +29,15 @@
     }
 
     return pos;
+  }
+
+  function exchangeFavPosition(initial, final) {
+    var aux = favoritesSongs[final];
+    favoritesSongs[final] = favoritesSongs[initial];
+    favoritesSongs[initial] = aux;
+
+    //Save item with new order
+    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
   }
 
   function showFavsTable(stop) {
@@ -63,10 +72,50 @@
         $('#playAllButton').addClass('hidden');
 
       } else {
+
         //Simulate response
         var simulatedJSONResponse = {};
         simulatedJSONResponse.responseText = JSON.stringify(favoritesSongs);
         processSongs.apply(simulatedJSONResponse);
+
+        //Write up and down buttons
+        var songs = document.getElementById('songs').children;
+
+        function exchangeAndUpdate(initial, final) {
+          exchangeFavPosition(initial, final);
+          showFavsTable(true);
+        }
+
+        for (var i = 0; i < songs.length; i++) {
+
+          var optionsCell = songs[i].children[4];
+          var up = false, down = false;
+
+          //Up button is not added to the first song
+          if (i > 0) {
+            var upButton = document.createElement('span');
+            upButton.setAttribute('class','glyphicon glyphicon-chevron-up');
+            upButton.setAttribute('style', 'cursor: pointer; color: #777777;');
+            upButton.onclick = exchangeAndUpdate.bind({}, i, i-1);
+            optionsCell.appendChild(upButton);
+
+            up = true;
+          }
+
+          //Down button is not added to the last song
+          if (i < songs.length - 1) {
+            var downButton = document.createElement('span');
+            downButton.setAttribute('class','glyphicon glyphicon-chevron-down');
+            downButton.setAttribute('style', 'cursor: pointer; color: #777777;');
+            downButton.onclick = exchangeAndUpdate.bind({}, i, i+1);
+            optionsCell.appendChild(downButton);
+
+            down = false;
+          }
+
+        }
+
+
       }
     }
 
@@ -134,7 +183,7 @@
           elem.info = songs[i];
 
           var playIconCell = document.createElement("td");
-          playIconCell.setAttribute('style','width: 1%;');
+          playIconCell.setAttribute('style','width: 1px;');
       
           var title = document.createElement("td");
           title.innerHTML = songs[i].title;
@@ -145,8 +194,11 @@
           var songtime = document.createElement("td");
           songtime.innerHTML = songs[i].songtime;
 
-          elem.onclick = function() {
-            playNode(this);
+          var options = document.createElement("td");
+          options.setAttribute('style','text-align: center;');
+
+          playIconCell.onclick = title.onclick = artist.onclick = songtime.onclick = function() {
+            playNode(this.parentNode);
           }
       
           elem.setAttribute('style',NORMAL_STYLE);
@@ -154,6 +206,7 @@
           elem.appendChild(title);
           elem.appendChild(artist);
           elem.appendChild(songtime);
+          elem.appendChild(options);
 
           //If the song is being played
           if (currentRow && currentRow.info.id === songs[i].id) {
