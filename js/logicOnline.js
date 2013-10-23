@@ -40,16 +40,24 @@
     localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
   }
 
-  function showFavsTable(stop) {
+  function showFavsTable(stop, continuePlayingAll) {
 
     if (playingAll && !stop) {
       $('#btnConfirmSearch').off('click');
-      $('#btnConfirmSearch').on('click', showFavsTable.bind({}, true));
+      $('#btnConfirmSearch').on('click', showFavsTable.bind({}, true, false));
       $('#playingAllModal').modal('show');
     } else {
 
       showingFavs = true;
-      playingAll = false;
+
+      if (playingAllEnabled && playingAll && continuePlayingAll) {
+        $('#cancelPlayAllButton').removeClass('hidden');
+        $('#playAllButton').addClass('hidden');
+      } else if (playingAllEnabled) {     //Playing all is enabled but not active
+        playingAll = false;
+        $('#cancelPlayAllButton').addClass('hidden');
+        $('#playAllButton').removeClass('hidden');
+      }
 
       //Show elements
       $('#playlistTable').addClass('hidden');
@@ -57,13 +65,9 @@
       $('#loadMoreBtn').addClass('hidden');
       $('#mainDiv').removeClass('hidden');
       $('#downloadPlayListButton').addClass('hidden');
-      $('#cancelPlayAllButton').addClass('hidden');
       $('#buttonViewFavs').addClass('active');
       $('#songs').empty();
 
-      if (playingAllEnabled) {
-        $('#playAllButton').removeClass('hidden');
-      }
 
       if (favoritesSongs.length === 0) {
       
@@ -83,7 +87,7 @@
 
         function exchangeAndUpdate(initial, final) {
           exchangeFavPosition(initial, final);
-          showFavsTable(true);
+          showFavsTable(true, true);
         }
 
         for (var i = 0; i < songs.length; i++) {
