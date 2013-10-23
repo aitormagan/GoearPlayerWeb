@@ -51,12 +51,9 @@
       showingFavs = true;
 
       if (playingAllEnabled && playingAll && continuePlayingAll) {
-        $('#cancelPlayAllButton').removeClass('hidden');
-        $('#playAllButton').addClass('hidden');
+        playAll();
       } else if (playingAllEnabled) {     //Playing all is enabled but not active
-        playingAll = false;
-        $('#cancelPlayAllButton').addClass('hidden');
-        $('#playAllButton').removeClass('hidden');
+        cancelPlayAll();
       }
 
       //Show elements
