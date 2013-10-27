@@ -86,21 +86,29 @@
           exchangeFavPosition(initial, final);
           showFavsTable(true, true);
         }
+        
+        function removeAndUpdate(pos) {
+          if(currentRow.info.id === favoritesSongs[pos].id) {
+            $('#playerBtnFav').removeClass('active');
+          }
+
+        
+          favoritesSongs.splice(pos, 1);
+          localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
+          showFavsTable(true, true);
+        }
 
         for (var i = 0; i < songs.length; i++) {
 
           var optionsCell = songs[i].children[4];
-          var up = false, down = false;
 
           //Up button is not added to the first song
           if (i > 0) {
             var upButton = document.createElement('span');
             upButton.setAttribute('class','glyphicon glyphicon-chevron-up');
             upButton.setAttribute('style', 'cursor: pointer; color: #777777;');
-            upButton.onclick = exchangeAndUpdate.bind({}, i, i-1);
+            upButton.onclick = exchangeAndUpdate.bind(this, i, i-1);
             optionsCell.appendChild(upButton);
-
-            up = true;
           }
 
           //Down button is not added to the last song
@@ -108,11 +116,17 @@
             var downButton = document.createElement('span');
             downButton.setAttribute('class','glyphicon glyphicon-chevron-down');
             downButton.setAttribute('style', 'cursor: pointer; color: #777777;');
-            downButton.onclick = exchangeAndUpdate.bind({}, i, i+1);
+            downButton.onclick = exchangeAndUpdate.bind(this, i, i+1);
             optionsCell.appendChild(downButton);
-
-            down = false;
           }
+          
+          //Delete button
+          var downButton = document.createElement('span');
+          downButton.setAttribute('class','glyphicon glyphicon-remove');
+          downButton.setAttribute('style', 'cursor: pointer; color: #777777;');
+          downButton.onclick = removeAndUpdate.bind(this, i);
+          optionsCell.appendChild(downButton);
+
 
         }
 
@@ -831,7 +845,7 @@
 
     //Refresh favs table
     if (showingFavs) {
-      showFavsTable();
+      showFavsTable(true, false);
     }
 
     //Write to local storage

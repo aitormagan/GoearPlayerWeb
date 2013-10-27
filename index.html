@@ -327,30 +327,34 @@
 				<div class="alert alert-info hidden" id="noFavsSongsAlert">
 					<strong>Atención:</strong> Aún no tienes canciones favoritas. ¡Reproduce cualquier canción y empieza a agregar canciones a tus favoritas!
 				</div>
+				
+				<!--<div style="height: 700px; overflow: auto; ">-->
 
-                <table class="table table-hover" id="songsTable">
-                    <thead>
-                    <tr>
-					    <th style="width: 1px;"></th>
-                        <th>Título</th>
-                        <th>Artista</th>
-                        <th>Duración</th>
-                        <th style="width: 50px;"></th>
-                    </tr>
-                    </thead>
-                    <tbody id="songs"></tbody>
-                </table>
+					<table class="table table-hover" id="songsTable">
+						<thead>
+						<tr>
+							<th style="width: 1px;"></th>
+							<th>Título</th>
+							<th>Artista</th>
+							<th>Duración</th>
+							<th style="width: 60px;"></th>
+						</tr>
+						</thead>
+						<tbody id="songs"></tbody>
+					</table>
 
-                <table class="table table-hover" id="playlistTable">
-                    <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Duración</th>
-                        <th>Nº de canciones</th>
-                    </tr>
-                    </thead>
-                    <tbody id="playlists"></tbody>
-                </table>
+					<table class="table table-hover" id="playlistTable">
+						<thead>
+						<tr>
+							<th>Título</th>
+							<th>Duración</th>
+							<th>Nº de canciones</th>
+						</tr>
+						</thead>
+						<tbody id="playlists"></tbody>
+					</table>
+				
+				<!--</div>-->
 
                 <p class="text-right">
 			<button id="downloadPlayListButton" class="btn btn-default hidden"><i class="glyphicon glyphicon-download"></i> Descargar lista</button>
@@ -612,6 +616,8 @@
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
 <script type="text/javascript" src="js/swfobject.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/loadPlayer.js"></script>
