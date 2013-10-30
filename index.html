@@ -176,6 +176,31 @@
 	</div>
 </div>
 
+<div id="favsModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title" id="favsLabel">Listas de favoritos</h3>
+            </div>
+            <div class="modal-body">
+                <p>Acabas de añadir tu primera canción a la lista de favoritos. Antes de seguir añadiendo canciones vamos a explicarte un poco el funcionamiento de este sistema:</p>
+                <ol>
+                    <li>Puedes añadir <strong>tantas canciones como quieras</strong>.</li>
+                    <li>Para borrar una canción de la lista de favoritos sólo tienes que pinchar en la canción que desees borrar y desmarcar la opción de favorita.</li>
+                    <li>Al hacer uso de este sistema estás <strong>aceptando el uso de almacenamiento local</strong> por parte de esta web. Se establecerá un item para guardar las canciones favoritas.</li>
+                    <li>Si utilizas <strong>navegación privada</strong>, cada vez que accedas a la página habrás perdido tu lista de canciones favoritas.</li>
+                    <li>Las listas de canciones son <strong>propias a cada navegador</strong>, es decir, tendrás una lista de canciones favoritas distinta en cada navegador que uses.</li>
+                    <li><strong>No se puede compartir</strong> tu lista de canciones favoritas con amigos u otros dispositivos o navegadores.</li>
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="navbar navbar-inverse navbar-fixed-top">
 	<!--<div style="position: relative; float: right; text-align: center; right: 18%;"><p class="navbar-text">Hola</p></div>-->
     <div class="container">
@@ -260,7 +285,7 @@
 
         <h1>Versión Online</h1>
 
-		<div class="row" style="margin-bottom: 15px;"> 
+        <div class="row" style="margin-bottom: 15px;">
 			<form id="formOnline">
 					<div class="col-sm-2"></div>
 					<div class="col-sm-7">
@@ -273,51 +298,63 @@
 						<div class="input-group">
 							<input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
 							<span class="input-group-btn">
-								<button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span></button>
+								<button id="searchButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span></button>
 							</span>
 						</div>
-					</div>
+                    </div>
 			</form>
-			<!--<form onsubmit="updateSearch(); return false" class="form-inline" role="form">
-			  	<div class="form-group col-lg-2">
-					<select id="searchType" class="form-control">
-						<option value="songs" selected="selected">Canciones</option>
-						<option value="playlists">Listas</option>
-					</select>
-			  	</div>
-			  	<div class="form-group col-lg-6">
-					<input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
-			  	</div>
-				<button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span>
-			</form>-->
+
+            <button id="buttonViewFavs" class="btn btn-default"><span class="glyphicon glyphicon-star"></span> Favoritas</button>
+
+            <!--<form onsubmit="updateSearch(); return false" class="form-inline" role="form">
+                  <div class="form-group col-lg-2">
+                    <select id="searchType" class="form-control">
+                        <option value="songs" selected="selected">Canciones</option>
+                        <option value="playlists">Listas</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-lg-6">
+                    <input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
+                  </div>
+                <button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span>
+            </form>-->
 		</div>
 
         <div class="row">
 
             <div class="col-md-12 hidden" id="mainDiv">
+			
+				<div class="alert alert-info hidden" id="noFavsSongsAlert">
+					<strong>Atención:</strong> Aún no tienes canciones favoritas. ¡Reproduce cualquier canción y empieza a agregar canciones a tus favoritas!
+				</div>
+				
+				<!--<div style="height: 700px; overflow: auto; ">-->
 
-                <table class="table table-hover" id="songsTable">
-                    <thead>
-                    <tr>
-					    <th></th>
-                        <th>Canción</th>
-                        <th>Artista</th>
-                        <th>Duración</th>
-                    </tr>
-                    </thead>
-                    <tbody id="songs"></tbody>
-                </table>
+					<table class="table table-hover" id="songsTable">
+						<thead>
+						<tr>
+							<th style="width: 1px;"></th>
+							<th>Título</th>
+							<th>Artista</th>
+							<th>Duración</th>
+							<th style="width: 60px;"></th>
+						</tr>
+						</thead>
+						<tbody id="songs"></tbody>
+					</table>
 
-                <table class="table table-hover" id="playlistTable">
-                    <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Duración</th>
-                        <th>Nº de canciones</th>
-                    </tr>
-                    </thead>
-                    <tbody id="playlists"></tbody>
-                </table>
+					<table class="table table-hover" id="playlistTable">
+						<thead>
+						<tr>
+							<th>Título</th>
+							<th>Duración</th>
+							<th>Nº de canciones</th>
+						</tr>
+						</thead>
+						<tbody id="playlists"></tbody>
+					</table>
+				
+				<!--</div>-->
 
                 <p class="text-right">
 			<button id="downloadPlayListButton" class="btn btn-default hidden"><i class="glyphicon glyphicon-download"></i> Descargar lista</button>
@@ -353,6 +390,7 @@
                             <button type="button" id="playerBtnPause" class="btn btn-default hidden"><span class="glyphicon glyphicon-pause"></span></button>
                             <button type="button" id="playerBtnForward" class="btn btn-default"><span class="glyphicon glyphicon-forward"></span></button>
                             <button type="button" id="playerBtnRepeat" class="btn btn-default" data-toggle="button"><span class="glyphicon glyphicon-repeat"></span></button>
+                            <button type="button" id="playerBtnFav" class="btn btn-default"><span class="glyphicon glyphicon-star"></span></button>
                             <a href="#" id="downloadLink" class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Descargar</a>
                         </div>
                     </div>
@@ -578,6 +616,8 @@
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
 <script type="text/javascript" src="js/swfobject.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/loadPlayer.js"></script>
