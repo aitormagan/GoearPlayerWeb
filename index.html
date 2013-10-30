@@ -123,8 +123,9 @@
 				<h3 class="modal-title" id="rightButtonLabel">Descargar Canción</h3>
 			</div>
 			<div class="modal-body">
-				<p>Para descargar la canción pulsa con el botón derecho (o pulsación larga en tablets y smartphones) sobre <em><strong>Descargar Canción »</strong></em> y selecciona 'Guardar Enlace Como...' <em>(o similar)</em>.</p>
-				<p>En algunos navegadores (Internet Explorer v10+, Google Chrome, Mozilla Firefox v21+ para Windows 7/8) también puedes pulsar con el botón derecho sobre el <strong>reproductor</strong> y seleccionar 'Guardar audio como...'</p>
+				<p>Para descargar la canción pulsa con el botón derecho (o pulsación larga en tablets y smartphones) sobre el botón denominado <strong><span class="glyphicon glyphicon-download"></span> Descargar</strong> y selecciona <strong>Guardar Enlace Como...</strong> <em>(o similar)</em>.</p>
+				<div class="alert alert-warning"><strong>Importante</strong>: La descarga de canciones no está disponible en dispositivos iOS (iPhone, iPod y/o iPad)</div>
+				<!--<p>En algunos navegadores (Internet Explorer v10+, Google Chrome, Mozilla Firefox v21+ para Windows 7/8) también puedes pulsar con el botón derecho sobre el <strong>reproductor</strong> y seleccionar 'Guardar audio como...'</p>-->
 				<!--<div class="alert">
 					<strong>ATENCIÓN:</strong> Es posible que si tardas mucho en descargar la canción no se inicie la descarga de la misma. En caso de que esto ocurra, pincha sobre el botón de actualización que aparece al lado del texto <em><strong>Descargar Canción »</strong></em> y vuelve a intentar descargar la canción.
 				</div>-->
@@ -173,6 +174,31 @@
 			</div>
 		</div>
 	</div>
+</div>
+
+<div id="favsModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 class="modal-title" id="favsLabel">Listas de favoritos</h3>
+            </div>
+            <div class="modal-body">
+                <p>Acabas de añadir tu primera canción a la lista de favoritos. Antes de seguir añadiendo canciones vamos a explicarte un poco el funcionamiento de este sistema:</p>
+                <ol>
+                    <li>Puedes añadir <strong>tantas canciones como quieras</strong>.</li>
+                    <li>Para borrar una canción de la lista de favoritos sólo tienes que pinchar en la canción que desees borrar y desmarcar la opción de favorita.</li>
+                    <li>Al hacer uso de este sistema estás <strong>aceptando el uso de almacenamiento local</strong> por parte de esta web. Se establecerá un item para guardar las canciones favoritas.</li>
+                    <li>Si utilizas <strong>navegación privada</strong>, cada vez que accedas a la página habrás perdido tu lista de canciones favoritas.</li>
+                    <li>Las listas de canciones son <strong>propias a cada navegador</strong>, es decir, tendrás una lista de canciones favoritas distinta en cada navegador que uses.</li>
+                    <li><strong>No se puede compartir</strong> tu lista de canciones favoritas con amigos u otros dispositivos o navegadores.</li>
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Entendido</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="navbar navbar-inverse navbar-fixed-top">
@@ -259,7 +285,7 @@
 
         <h1>Versión Online</h1>
 
-		<div class="row" style="margin-bottom: 15px;"> 
+        <div class="row" style="margin-bottom: 15px;">
 			<form id="formOnline">
 					<div class="col-sm-2"></div>
 					<div class="col-sm-7">
@@ -272,51 +298,63 @@
 						<div class="input-group">
 							<input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
 							<span class="input-group-btn">
-								<button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span></button>
+								<button id="searchButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span></button>
 							</span>
 						</div>
-					</div>
+                    </div>
 			</form>
-			<!--<form onsubmit="updateSearch(); return false" class="form-inline" role="form">
-			  	<div class="form-group col-lg-2">
-					<select id="searchType" class="form-control">
-						<option value="songs" selected="selected">Canciones</option>
-						<option value="playlists">Listas</option>
-					</select>
-			  	</div>
-			  	<div class="form-group col-lg-6">
-					<input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
-			  	</div>
-				<button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span>
-			</form>-->
+
+            <button id="buttonViewFavs" class="btn btn-default"><span class="glyphicon glyphicon-star"></span> Favoritas</button>
+
+            <!--<form onsubmit="updateSearch(); return false" class="form-inline" role="form">
+                  <div class="form-group col-lg-2">
+                    <select id="searchType" class="form-control">
+                        <option value="songs" selected="selected">Canciones</option>
+                        <option value="playlists">Listas</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-lg-6">
+                    <input id="searchInput" class="form-control" type="text" placeholder="Nombre de la canción, artista o grupo a buscar" required>
+                  </div>
+                <button id="songsButton" class="btn btn-default" data-loading-text="Cargando..." type="submit"><span class="glyphicon glyphicon-search"></span>
+            </form>-->
 		</div>
 
         <div class="row">
 
             <div class="col-md-12 hidden" id="mainDiv">
+			
+				<div class="alert alert-info hidden" id="noFavsSongsAlert">
+					<strong>Atención:</strong> Aún no tienes canciones favoritas. ¡Reproduce cualquier canción y empieza a agregar canciones a tus favoritas!
+				</div>
+				
+				<!--<div style="height: 700px; overflow: auto; ">-->
 
-                <table class="table table-hover" id="songsTable">
-                    <thead>
-                    <tr>
-					    <th></th>
-                        <th>Canción</th>
-                        <th>Artista</th>
-                        <th>Duración</th>
-                    </tr>
-                    </thead>
-                    <tbody id="songs"></tbody>
-                </table>
+					<table class="table table-hover" id="songsTable">
+						<thead>
+						<tr>
+							<th style="width: 1px;"></th>
+							<th>Título</th>
+							<th>Artista</th>
+							<th>Duración</th>
+							<th style="width: 60px;"></th>
+						</tr>
+						</thead>
+						<tbody id="songs"></tbody>
+					</table>
 
-                <table class="table table-hover" id="playlistTable">
-                    <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Duración</th>
-                        <th>Nº de canciones</th>
-                    </tr>
-                    </thead>
-                    <tbody id="playlists"></tbody>
-                </table>
+					<table class="table table-hover" id="playlistTable">
+						<thead>
+						<tr>
+							<th>Título</th>
+							<th>Duración</th>
+							<th>Nº de canciones</th>
+						</tr>
+						</thead>
+						<tbody id="playlists"></tbody>
+					</table>
+				
+				<!--</div>-->
 
                 <p class="text-right">
 			<button id="downloadPlayListButton" class="btn btn-default hidden"><i class="glyphicon glyphicon-download"></i> Descargar lista</button>
@@ -329,15 +367,33 @@
             <div class="col-md-4 hidden" id="playerDiv">
 
                 <div id="player">
-                    <p class="text-center" id="playerP">
-						<img id="songimg" class="img-thumbnail" src="img/1x1.png" alt="Imagen grupo/artista" style="width: 100%" />
-						<br /><br id="lastBR"/><br />
-						<em>
-							<a id="downloadLink" title="Descargar Canción" href="#" style="text-decoration: none;">
-								<i class="glyphicon glyphicon-download"></i> Descargar Canción » </a>
-							<!--<i title="Actualizar dirección de descarga. Pincha aquí cuando al intentar descargar la canción no ocurra nada" id="updateLink" style="cursor: pointer" class="icon-refresh"></i>-->
-						</em>
-                    </p>
+                    <div class="text-center" id="playerP">
+		        <img id="songimg" class="img-thumbnail" src="img/1x1.png" alt="Imagen grupo/artista" style="width: 100%" />
+                        <div id="playerBarAndVolume" style="text-align: center; margin-top: 10px">
+                            <div style="float: left;  padding-right: 10px;"><p id="currentTime" class="text-left"></p></div>
+                            <div id="volumeDiv" style="float: right; width: 30%;  padding-left: 10px;">
+                                <div  style="float: left; padding-right: 10px"><span id="volumeIcon" class="glyphicon glyphicon-volume-up" style=" cursor: pointer; "></span></div>
+                                <div class="progress" id="volumeBarPlayer" style=" cursor: pointer; margin-bottom: 10px;">
+                                    <div class="progress-bar" role="progressbar" id="volumePos" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="float: right;  padding-left: 10px;"><p id="duration" class="text-right"></p></div>
+                            <div class="progress" id="progressBarPlayer" style=" cursor: pointer; margin-bottom: 10px;">
+                                <div class="progress-bar" role="progressbar" id="progessLength" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="playerButtons" style="text-align: center">
+                            <button type="button" id="playerBtnBackward" class="btn btn-default"><span class="glyphicon glyphicon-backward"></span></button>
+                            <button type="button" id="playerBtnPlay" class="btn btn-default"><span class="glyphicon glyphicon-play"></span></button>
+                            <button type="button" id="playerBtnPause" class="btn btn-default hidden"><span class="glyphicon glyphicon-pause"></span></button>
+                            <button type="button" id="playerBtnForward" class="btn btn-default"><span class="glyphicon glyphicon-forward"></span></button>
+                            <button type="button" id="playerBtnRepeat" class="btn btn-default" data-toggle="button"><span class="glyphicon glyphicon-repeat"></span></button>
+                            <button type="button" id="playerBtnFav" class="btn btn-default"><span class="glyphicon glyphicon-star"></span></button>
+                            <a href="#" id="downloadLink" class="btn btn-default"><span class="glyphicon glyphicon-download"></span> Descargar</a>
+                        </div>
+                    </div>
 
                     <dl class="dl-horizontal">
                         <dt>Canción</dt>
@@ -346,7 +402,7 @@
                         <dd id="artist"><em>Cargando...</em></dd>
                         <dt>Duración</dt>
                         <dd id="songtime"><em>Cargando...</em></dd>
-			<dt>ID Goear</dt>
+			            <dt>ID Goear</dt>
                         <dd id="goearID"><em>Cargando...</em></dd>
                         <dt>Tamaño</dt>
                         <dd id="size"><em>Cargando...</em></dd>
@@ -560,6 +616,8 @@
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
 <script type="text/javascript" src="js/swfobject.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/loadPlayer.js"></script>
