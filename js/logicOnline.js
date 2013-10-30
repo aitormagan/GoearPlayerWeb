@@ -64,6 +64,15 @@
     window.history.pushState('', '', '?search=' + search + '&type=' + type);
     document.title = baseTitle + ' - ' + title;
   }
+  
+  function showNoMatchesAlert() {
+    $('#playlistTable').addClass('hidden');
+    $('#songsTable').addClass('hidden');
+    $('#cancelPlayAllButton').addClass('hidden');
+    $('#playAllButton').addClass('hidden');
+    $('#loadMoreBtn').addClass('hidden');
+    $('#noMatchesAlert').removeClass('hidden');
+  }
 
   function processSongs(songs) {
 
@@ -122,6 +131,11 @@
           $('#noResultsModal').modal('show');
           $('#loadMoreBtn').addClass('hidden');
         }
+      }
+      
+      var table = document.getElementById('songs');
+      if (table.children.length === 0) {
+        showNoMatchesAlert();
       }
 
       //TODO: Hide songs table
@@ -266,6 +280,11 @@
             $('#loadMoreBtn').addClass('hidden');
           }
         }
+        
+        var table = document.getElementById('playlists');
+        if (table.children.length === 0) {
+          showNoMatchesAlert();
+        }
 
         $('#loadingModal').modal('hide');
         $('#searchButton').button('reset');
@@ -368,6 +387,7 @@
         $('#mainDiv').removeClass('hidden');
         $('#loadMoreBtn').removeClass('hidden');
         $('#noFavsSongsAlert').addClass('hidden');
+        $('#noMatchesAlert').addClass('hidden');
         $('#buttonViewFavs').removeClass('active');
         $('#downloadPlayListButton').addClass('hidden');
 
@@ -465,6 +485,7 @@
       $('#mainDiv').removeClass('hidden');
       $('#downloadPlayListButton').addClass('hidden');
       $('#buttonViewFavs').addClass('active');
+      $('#noMatchesAlert').addClass('hidden');
 
       //Empty songs table
       $('#songs').empty();
