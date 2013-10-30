@@ -1,6 +1,8 @@
 (function() {
 
-  //Variables
+  //////////////////////////////////////////////////////////////////////
+  /////////////////////////////VARIABLES////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
   var currentSearch = '';
   var page = 0;
   var NORMAL_STYLE = 'cursor: pointer;';
@@ -17,8 +19,390 @@
   var favoritesSongs = [];
   var FAV_SONGS_ITEM_NAME = 'favSongs';
   var showingFavs = false;
+  var playingPlaylist = false;
 
-  //Favorites functions
+  //Set play icon class
+  playIcon.setAttribute('class','glyphicon glyphicon-play');
+
+
+  //////////////////////////////////////////////////////////////////////
+  /////////////////////////AUXILIAR FUNCTIONS///////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
+  function sendReq(url, method, headers, content, callback) {
+
+    try {
+
+      var proxyURL = 'proxy.php';
+      var req = new XMLHttpRequest();
+      req.open(method, proxyURL, true);
+
+      //Set headers
+      req.setRequestHeader('target-host', url);
+      for (var head in headers) {
+        req.setRequestHeader(head, headers[head]);
+      }
+
+      if (callback) {
+        req.onload = callback;
+      }
+
+      req.onerror = function() {
+        $('#searchButton').button('reset');
+        $('#loadingModal').modal('hide');
+        $('#errorModal').modal('show');
+      }
+
+      req.send(content);
+    }catch (e) {
+      //Nothing to do...
+    }
+
+  }
+
+  function updateURL(title, search, type) {
+    window.history.pushState('', '', '?search=' + search + '&type=' + type);
+    document.title = baseTitle + ' - ' + title;
+  }
+
+  function processSongs(songs) {
+
+    var correct = true;
+
+    try {
+
+      var songs = JSON.parse(songs);
+
+      //Include results in the table
+      for (var i = 0; i < songs.length; i++) {
+
+        if (songs[i] !== 0) {
+
+          //Player table
+          var elem = document.createElement("tr");
+          elem.info = songs[i];
+
+          var playIconCell = document.createElement("td");
+          playIconCell.setAttribute('style','width: 1px;');
+
+          var title = document.createElement("td");
+          title.innerHTML = songs[i].title;
+
+          var artist = document.createElement("td");
+          artist.innerHTML = songs[i].artist;
+
+          var songtime = document.createElement("td");
+          songtime.innerHTML = songs[i].songtime;
+
+          var options = document.createElement("td");
+          options.setAttribute('style','text-align: center;');
+
+          playIconCell.onclick = title.onclick = artist.onclick = songtime.onclick = function() {
+            playNode(this.parentNode);
+          }
+
+          elem.setAttribute('style',NORMAL_STYLE);
+          elem.appendChild(playIconCell);
+          elem.appendChild(title);
+          elem.appendChild(artist);
+          elem.appendChild(songtime);
+          elem.appendChild(options);
+
+          //If the song is being played
+          if (currentRow && currentRow.info.id === songs[i].id) {
+            currentRow = elem;
+            elem.setAttribute('style', HIGHLIGHTED_STYLE);
+            playIconCell.appendChild(playIcon);
+          }
+
+          document.getElementById('songs').appendChild(elem);
+
+        } else {
+          $('#loadingModal').modal('hide');
+          $('#noResultsModal').modal('show');
+          $('#loadMoreBtn').addClass('hidden');
+        }
+      }
+
+      //TODO: Hide songs table
+
+      $('#loadingModal').modal('hide');
+      $('#searchButton').button('reset');
+    } catch(e) {
+      console.log(e);
+      $('#searchButton').button('reset');
+      $('#loadingModal').modal('hide');
+      $('#errorModal').modal('show');
+
+      correct = false;
+    }
+
+    return correct;
+  }
+
+
+  //////////////////////////////////////////////////////////////////////
+  ///////////////////////////////SONGS//////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
+  function searchSong() {
+
+    //Show and hide elements
+    $('#loadingModal').modal('show');
+    $('#searchButton').button('loading');
+    $('#playlistTable').addClass('hidden');
+    $('#songsTable').removeClass('hidden');
+
+    var url = 'http://goear.com/apps/android/search_songs_json.php?q='  + currentSearch + '&p=' + page;
+    var headers = {};
+
+    sendReq(url, 'GET', headers, '', function() {
+      if(processSongs(this.responseText)) {
+        page++;
+      }
+    });
+  }
+
+
+  //////////////////////////////////////////////////////////////////////
+  /////////////////////////////PLAYLISTS////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
+  function searchPlaylist() {
+
+    //Show and hide elements
+    $('#loadingModal').modal('show');
+    $('#searchButton').button('loading');
+    $('#playlistTable').removeClass('hidden');
+    $('#songsTable').addClass('hidden');
+    $('#playAllButton').addClass('hidden');
+
+    var url = 'http://goear.com/apps/android/search_playlist_json.php?q='  + currentSearch + '&p=' + page;
+    var headers = {};
+
+    var callback = function() {
+
+      try {
+
+        //Show main div
+        $('#mainDiv').removeClass('hidden');
+
+        //Parse results
+        var playlists = JSON.parse(this.responseText);
+
+        //Page number is increased if no errors arise
+        page++;
+
+        //Set header
+        //document.getElementById('playlistSearchTerm').innerHTML = currentSearch;
+
+        //Include results in the table
+        for (var i = 0; i < playlists.length; i++) {
+
+          if (playlists[i] !== 0) {
+
+            var elem = document.createElement("tr");
+            elem.info = playlists[i];
+
+            var title = document.createElement("td");
+            title.innerHTML = playlists[i].title;
+
+            var duration = document.createElement("td");
+            if (playlists[i].songtime === '00:00:00') {
+              duration.innerHTML = '<em>No Disponible</em>';
+            } else {
+              duration.innerHTML = playlists[i].songtime;
+            }
+
+            var songs = document.createElement("td");
+            songs.innerHTML = playlists[i].plsongs + (playlists[i].plsongs == 1 ? ' canción' : ' canciones');
+
+            elem.onclick = function() {
+
+              $('#loadingModal').modal('show');
+              $('#searchButton').button('loading');
+
+              var url = 'http://www.goear.com/apps/android/playlist_songs_json.php?userid=null&secureid=null&v=' + this.info.id;
+
+              var callback = function() {
+                processSongs(this.responseText);
+
+                $('#playlistTable').addClass('hidden');
+                $('#songsTable').removeClass('hidden');
+                $('#loadMoreBtn').addClass('hidden');
+                $('#downloadPlayListButton').removeClass('hidden');
+
+                if (playingAllEnabled) {
+                  $('#playAllButton').removeClass('hidden');
+                }
+
+                playingPlaylist = true;
+
+                setTimeout(playAll, 1000);
+              }
+
+              //Set download play list button action (button will be shown later)
+              var downloadPlaylist = function() {
+                $('#playlistdownloadid').html(this.info.id);
+                $('#downloadPlaylistModal').modal('show');
+              }
+
+              $('#downloadPlayListButton').off('click');
+              $('#downloadPlayListButton').on('click', downloadPlaylist.bind(this));
+
+              sendReq(url, 'GET', headers, '', callback);
+
+            }
+
+            elem.setAttribute('style',NORMAL_STYLE);
+            elem.appendChild(title);
+            elem.appendChild(duration);
+            elem.appendChild(songs);
+
+            document.getElementById("playlists").appendChild(elem);
+          } else {
+            $('#loadingModal').modal('hide');
+            $('#noResultsModal').modal('show');
+            $('#loadMoreBtn').addClass('hidden');
+          }
+        }
+
+        $('#loadingModal').modal('hide');
+        $('#searchButton').button('reset');
+
+      } catch(e) {
+        $('#searchButton').button('reset');
+        $('#loadingModal').modal('hide');
+        $('#noResultsModal').modal('show');
+      }
+    }
+
+    sendReq(url, 'GET', headers, '', callback);
+  }
+
+
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////NEW SEARCH//////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
+  function loadMoreResults() {
+    if(searchType === 'playlists') {
+      searchPlaylist();
+    } else {
+      searchSong();
+    }
+  }
+
+  function newSearch(stop) {
+
+    if (playingAll && !stop) {
+      $('#btnConfirmSearch').off('click');
+      $('#btnConfirmSearch').on('click', newSearch.bind({}, true));
+      $('#playingAllModal').modal('show');
+    } else {
+
+      var PATTERN = new RegExp('^http\://(www\.)?goear\.com/(listen|playlist)/([a-zA-Z0-9]{7})/');
+
+      var search = $('#searchInput').val();
+      var type = $('#searchType').val();
+      var regex = PATTERN.exec(search);
+
+      if (regex) {
+        //Minihack: detect goear URLs
+
+        var type = regex[2];
+        var id = regex[3];
+
+        if (type === 'playlist') {  //Playlists can be searched by their ID
+
+          //Set input properly
+          $('#searchInput').val(id);
+          $('#searchType').val('playlists');
+          newSearch(stop);   //Restart search
+
+        } else {                //Songs cannot be searched by their ID
+          $('#directSearchModal').modal('show');
+
+          /* TODO: TEST METHOD!!!!
+           $('#searchInput').val(id);
+           $('#searchType').val('songs');
+
+           $('#loadingModal').modal('show');
+
+           //Is the only way to get song information
+           sendReq('http://www.goear.com/externaltrackhost.php?f=' + id, 'GET', null, null, function() {
+
+           //Parse XML
+           var xmlDoc = new DOMParser().parseFromString(this.responseText,'text/xml');
+           var elem = xmlDoc.getElementsByTagName('song')[0];
+           var title = elem.getAttribute('title');
+           var artist = elem.getAttribute('artist');
+
+           if (artist === '' && title === '') {    //That song does not exist
+             $('#noResultsModal').modal('show');
+           } else {
+             //Show song table and hide play list table
+             $('#playlistTable').addClass('hidden');
+             $('#songsTable').removeClass('hidden');
+             $('#songs').empty();
+
+             //Analyze song using the default method
+             var song = {
+               id: id,
+               artist: artist,
+               title: title,
+               imgpath: 'http://www.goear.com/band/picture/' + artist,
+               songtime: '<em>No disponible</em>'
+             };
+
+             processSongs.apply(song);
+
+             }
+           });*/
+        }
+
+      } else if (showingFavs || playingPlaylist || (currentSearch !== search.trim() || searchType !== type)) {
+        //Only search when current search differs from new search
+
+        //Show and hide elements
+        $('#mainDiv').removeClass('hidden');
+        $('#loadMoreBtn').removeClass('hidden');
+        $('#noFavsSongsAlert').addClass('hidden');
+        $('#buttonViewFavs').removeClass('active');
+        $('#downloadPlayListButton').addClass('hidden');
+
+        //Empty tables
+        $('#songs').empty();
+        $('#playlists').empty();
+
+        //Cancel playing all
+        cancelPlayAll();
+
+        //Reset global variables
+        currentSearch = search;
+        searchType = type;
+        page = 0;
+        showingFavs = false;
+        playingPlaylist = false;
+
+        //Start search
+        updateURL(currentSearch, currentSearch, type);
+        loadMoreResults();
+      }
+    }
+
+    //Avoid default action
+    return stop;
+  }
+
+  $('#formOnline').on('submit', newSearch.bind({}, false));
+  $('#loadMoreBtn').on('click', loadMoreResults);
+
+
+  //////////////////////////////////////////////////////////////////////
+  /////////////////////////////FAVORITES////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
   function isSongFavorite(songId) {
 
     var pos = -1;
@@ -29,6 +413,29 @@
     }
 
     return pos;
+  }
+
+  function addOrRemoveFavorite(songInfo) {
+
+    //Look for that song on the fav array
+    var pos = isSongFavorite(songInfo.id);
+
+    if (pos === -1) {
+      //Add song to favorites
+      favoritesSongs.push(songInfo);
+
+      //Show info about favorite songs
+      if (favoritesSongs.length === 1) {
+        $('#favsModal').modal('show');
+      }
+    } else {
+      //Remove song from favorites
+      favoritesSongs.splice(pos, 1);
+    }
+
+    //Write to local storage
+    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
+
   }
 
   function exchangeFavPosition(initial, final) {
@@ -50,21 +457,17 @@
 
       showingFavs = true;
 
-      if (playingAllEnabled && playingAll && continuePlayingAll) {
-        playAll();
-      } else if (playingAllEnabled) {     //Playing all is enabled but not active
-        cancelPlayAll();
-      }
-
       //Show elements
+      $('#mainDiv').removeClass('hidden');
       $('#playlistTable').addClass('hidden');
       $('#songsTable').removeClass('hidden');
       $('#loadMoreBtn').addClass('hidden');
       $('#mainDiv').removeClass('hidden');
       $('#downloadPlayListButton').addClass('hidden');
       $('#buttonViewFavs').addClass('active');
-      $('#songs').empty();
 
+      //Empty songs table
+      $('#songs').empty();
 
       if (favoritesSongs.length === 0) {
       
@@ -75,9 +478,7 @@
       } else {
 
         //Simulate response
-        var simulatedJSONResponse = {};
-        simulatedJSONResponse.responseText = JSON.stringify(favoritesSongs);
-        processSongs.apply(simulatedJSONResponse);
+        processSongs(JSON.stringify(favoritesSongs));
 
         //Write up and down buttons
         var songs = document.getElementById('songs').children;
@@ -88,14 +489,16 @@
         }
         
         function removeAndUpdate(pos) {
+
+          var continuePlaying = true;
+
           if(currentRow.info.id === favoritesSongs[pos].id) {
             $('#playerBtnFav').removeClass('active');
+            continuePlaying = false;
           }
 
-        
-          favoritesSongs.splice(pos, 1);
-          localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
-          showFavsTable(true, true);
+          addOrRemoveFavorite(favoritesSongs[pos]);
+          showFavsTable(true, continuePlaying);
         }
 
         for (var i = 0; i < songs.length; i++) {
@@ -126,267 +529,73 @@
           downButton.setAttribute('style', 'cursor: pointer; color: #777777;');
           downButton.onclick = removeAndUpdate.bind(this, i);
           optionsCell.appendChild(downButton);
-
-
         }
-
-
-      }
-    }
-
-  }
-
-  //Auxiliar Functions
-  function sendReq(url, method, headers, content, callback) {
-
-    try {
-
-      var proxyURL = "proxy.php";
-      var req = new XMLHttpRequest();
-      req.open(method, proxyURL, true);
-
-      //Set headers
-      req.setRequestHeader('target-host', url);
-      for (var head in headers) {
-        req.setRequestHeader(head, headers[head]);
       }
 
-      if (callback) {
-        req.onload = callback;
+      //Set playing all button properly
+      if (playingAllEnabled && playingAll && continuePlayingAll) {
+        playAll();
+      } else if (playingAllEnabled) {     //Playing all is enabled but not active
+        cancelPlayAll();
       }
-    
-      req.onerror = function() {
-        $('#songsButton').button('reset');
-        $('#loadingModal').modal('hide');
-        $('#errorModal').modal('show');
-      }
-    
-      req.send(content);
-    }catch (e) {
     }
   }
 
-  function loadResults() {
-    //Hide download play list button
-    $('#downloadPlayListButton').addClass('hidden');
-    
-    if(searchType === 'playlists') {
-      searchPlaylist();
-    } else {
-      searchSong();
+  //Set action to fire when favorite button is clicked
+  //Add/Remove song from favorite songs
+  $('#playerBtnFav').click(function() {
+
+    addOrRemoveFavorite(currentRow.info);
+
+    //Refresh favs table
+    if (showingFavs) {
+      showFavsTable(true, false);
     }
+
+    //Toggle button
+    $('#playerBtnFav').button('toggle');
+
+  });
+
+  //Set action to fire when user wants to show favorite songs
+  $('#buttonViewFavs').on('click', showFavsTable.bind({}, false));
+
+  //Init favorites
+  var favoritesSongsJSON = localStorage.getItem(FAV_SONGS_ITEM_NAME);
+  if (favoritesSongsJSON) {
+    favoritesSongs = JSON.parse(favoritesSongsJSON);
   }
 
-  function processSongs() {
-    try {
 
-      //Show table
-      $('#mainDiv').removeClass('hidden');
+  //////////////////////////////////////////////////////////////////////
+  ///////////////////////////////PLAYER/////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
 
-      var songs = JSON.parse(this.responseText);
-    
-      //Page number is increased if no errors arise
-      page++;
+  function updateNavBarTitle() {
 
-      //Include results in the table
-      for (var i = 0; i < songs.length; i++) {
+    var titleNav = $('#actualSong');
+    var MAX_LENGTH = 40;
 
-        if (songs[i] !== 0) {
+    var setNavBarInfo = function(info) {
 
-          //Player table
-          var elem = document.createElement("tr");
-          elem.info = songs[i];
-
-          var playIconCell = document.createElement("td");
-          playIconCell.setAttribute('style','width: 1px;');
-      
-          var title = document.createElement("td");
-          title.innerHTML = songs[i].title;
-      
-          var artist = document.createElement("td");
-          artist.innerHTML = songs[i].artist;
-      
-          var songtime = document.createElement("td");
-          songtime.innerHTML = songs[i].songtime;
-
-          var options = document.createElement("td");
-          options.setAttribute('style','text-align: center;');
-
-          playIconCell.onclick = title.onclick = artist.onclick = songtime.onclick = function() {
-            playNode(this.parentNode);
-          }
-      
-          elem.setAttribute('style',NORMAL_STYLE);
-          elem.appendChild(playIconCell);
-          elem.appendChild(title);
-          elem.appendChild(artist);
-          elem.appendChild(songtime);
-          elem.appendChild(options);
-
-          //If the song is being played
-          if (currentRow && currentRow.info.id === songs[i].id) {
-            currentRow = elem;
-            elem.setAttribute('style', HIGHLIGHTED_STYLE);
-            playIconCell.appendChild(playIcon);
-          }
-
-          document.getElementById("songs").appendChild(elem);
-
-          //NavBar
-          /*var li = document.createElement("li");
-          var a = document.createElement("a");
-          
-          a.setAttribute('href', '#');
-          a.innerHTML = songs[i].artist + ' - ' + songs[i].title;
-          a.onclick = function() {
-            playNode(elem);
-          }
-
-          li.appendChild(a);
-
-          document.getElementById("navBarSongList").appendChild(li);*/
+      titleNav.fadeOut(function() {
+        if (info.length > MAX_LENGTH + 3) {
+          titleNav.html(info.substring(0, MAX_LENGTH) + '...');
         } else {
-          $('#loadingModal').modal('hide');
-          $('#noResultsModal').modal('show');
-          $('#loadMoreBtn').addClass('hidden');
+          titleNav.html(info);
         }
-      }
-     
-      $('#loadingModal').modal('hide');
-      $('#songsButton').button('reset');
-    } catch(e) {
-      console.log(e);
-      $('#songsButton').button('reset');
-      $('#loadingModal').modal('hide');
-      $('#errorModal').modal('show');
+
+        titleNav.fadeIn();
+      });
     }
-  }
 
-  function searchPlaylist() {
-    
-    $('#loadingModal').modal('show');
-    $('#songsButton').button('loading');
-    $('#playlistTable').removeClass('hidden');
-    $('#songsTable').addClass('hidden');
-    $('#playAllButton').addClass('hidden');
-    
-    var url = 'http://goear.com/apps/android/search_playlist_json.php?q='  + currentSearch + '&p=' + page;
-    var headers = {};
-    
-    var callback = function() {
-    
-      try {
-      
-        //Show main div
-        $('#mainDiv').removeClass('hidden');
-        
-        //Parse results
-        var playlists = JSON.parse(this.responseText);
-        
-        //Page number is increased if no errors arise
-        page++;
-        
-        //Set header
-        //document.getElementById('playlistSearchTerm').innerHTML = currentSearch;
-        
-        //Include results in the table
-        for (var i = 0; i < playlists.length; i++) {
-
-          if (playlists[i] !== 0) {
-
-            var elem = document.createElement("tr");
-            elem.info = playlists[i];
-
-            var title = document.createElement("td");
-            title.innerHTML = playlists[i].title;
-      
-            var duration = document.createElement("td");
-            if (playlists[i].songtime === '00:00:00') {
-              duration.innerHTML = '<em>No Disponible</em>';
-            } else {
-              duration.innerHTML = playlists[i].songtime;
-            }
-      
-            var songs = document.createElement("td");
-            songs.innerHTML = playlists[i].plsongs + (playlists[i].plsongs == 1 ? ' canción' : ' canciones');
-          
-            elem.onclick = function() {
-          
-              $('#loadingModal').modal('show');
-              $('#songsButton').button('loading');
-            
-              var url = 'http://www.goear.com/apps/android/playlist_songs_json.php?userid=null&secureid=null&v=' + this.info.id;
-            
-              var callback = function() {
-                processSongs.apply(this);
-              
-                $('#playlistTable').addClass('hidden');
-                $('#songsTable').removeClass('hidden');
-                $('#loadMoreBtn').addClass('hidden');
-                $('#downloadPlayListButton').removeClass('hidden');
-            
-                if (playingAllEnabled) {
-                  $('#playAllButton').removeClass('hidden');
-                }
-                
-                setTimeout(playAll, 1000);
-              }
-
-              //Set download play list button action (button will be shown later)
-              var downloadPlaylist = function() {
-                $('#playlistdownloadid').html(this.info.id);
-                $('#downloadPlaylistModal').modal('show');
-              }
-
-              $('#downloadPlayListButton').off('click');
-              $('#downloadPlayListButton').on('click', downloadPlaylist.bind(this));
-            
-              sendReq(url, 'GET', headers, '', callback);
-            
-            }
-
-            elem.setAttribute('style',NORMAL_STYLE);
-            elem.appendChild(title);
-            elem.appendChild(duration);
-            elem.appendChild(songs);
-
-            document.getElementById("playlists").appendChild(elem);
-          } else {
-            $('#loadingModal').modal('hide');
-            $('#noResultsModal').modal('show');
-            $('#loadMoreBtn').addClass('hidden');
-          }
-        }
-        
-        $('#loadingModal').modal('hide');
-        $('#songsButton').button('reset');
-        
-      } catch(e) {
-        $('#songsButton').button('reset');
-        $('#loadingModal').modal('hide');
-        $('#noResultsModal').modal('show');
+    if (currentRow) {
+      if (titleNav.html() == currentRow.info.title || titleNav.html() == currentRow.info.title.substring(0, MAX_LENGTH) + '...') {
+        setNavBarInfo(currentRow.info.artist);
+      } else {
+        setNavBarInfo(currentRow.info.title);
       }
     }
-    
-    sendReq(url, 'GET', headers, '', callback);
-  }
-
-  function searchSong() {
-
-    $('#loadingModal').modal('show');
-    $('#songsButton').button('loading');
-    $('#playlistTable').addClass('hidden');
-    $('#songsTable').removeClass('hidden');
-    
-    var url = 'http://goear.com/apps/android/search_songs_json.php?q='  + currentSearch + '&p=' + page;
-    var headers = {};
-
-    sendReq(url, 'GET', headers, '', processSongs);
-  }
-  
-  function updateURL(){
-    window.history.pushState('', '', '?search=' + currentSearch + '&type=' + searchType);
-    document.title = baseTitle + ' - ' + currentSearch;
   }
 
   function playSong(songInfo) {
@@ -414,44 +623,27 @@
       
     //Set title
     var title = $('#title');
-
-    if (songInfo.title === '') {
-      title.html('N/A');
-    } else {
-      title.html(songInfo.title);
-    }
+    title.html(songInfo.title || 'N/A');
 
     //Set artist
     var artist = $('#artist');
-    if (songInfo.artist === '') {
-      artist.html('N/A');
-    } else {
-      artist.html(songInfo.artist);
-    }
+    artist.html(songInfo.artist || 'N/A');
 
     //Set songtime
     var songtime = $('#songtime');
-    if (songInfo.songtime === '') {
-      songtime.html('N/A');
-    } else {
-      songtime.html(songInfo.songtime);
-    }
+    songtime.html(songInfo.songtime || 'N/A');
 
     //Set song length
     var size = $('#size');
-    size.empty();
-    var italics = document.createElement("em");
-    italics.appendChild(document.createTextNode('Cargando...'));
-    size.append(italics);
+    size.html('<em>Cargando...</em>');
 
     //Set GoearID
     var goearID = $('#goearID');
-    goearID.empty();
-    goearID.append(document.createTextNode(songInfo.id));
+    goearID.html(songInfo.id || 'N/A');
 
     //Set image
-    var img = document.getElementById("songimg");
-    img.setAttribute('src',songInfo.imgpath);
+    var img = document.getElementById('songimg');
+    img.setAttribute('src', songInfo.imgpath);
 
     //Update fav button
     $('#playerBtnFav').removeClass('active');
@@ -512,7 +704,6 @@
     reqSize.send();
   }
   
-  //Play Functions
   function playNode(nodeToPlay) {
 
     if(nodeToPlay) {
@@ -522,12 +713,12 @@
       if (currentRow) {
         sameSong = nodeToPlay === currentRow;
         if (!sameSong) {
-          currentRow.setAttribute('style',NORMAL_STYLE);    //Remove highlighted style from the previous selected song
+          currentRow.setAttribute('style', NORMAL_STYLE);    //Remove highlighted style from the previous selected song
         }
       }
 
       if (!sameSong) {
-        nodeToPlay.setAttribute('style',HIGHLIGHTED_STYLE);   //Highlighted style for the selected song
+        nodeToPlay.setAttribute('style', HIGHLIGHTED_STYLE);  //Highlighted style for the selected song
         nodeToPlay.firstChild.appendChild(playIcon);          //Change play icon position
         currentRow = nodeToPlay;                              //Set Current Song
         playSong(nodeToPlay.info);                            //Play Song
@@ -545,41 +736,38 @@
     }
   }
 
-  function playAll() {
-    if (playingAllEnabled) {
-      playingAll = true;
-            
-      $('#playAllButton').addClass('hidden');
-      $('#cancelPlayAllButton').removeClass('hidden');
-      $('#loadingModal').removeClass('fade');
-      
-      var songsTable = document.getElementById('songs');
-      var nodeToPlay = songsTable.firstChild;	
-      
-      if (currentRow && currentRow.parentNode === songsTable) {
-        if (audioPlayer.ended) {
-         if(currentRow.nextSibling) {
-            nodeToPlay = currentRow.nextSibling;
-          }
+  //Set up audio player
+  if (audioPlayer) {
+    playingAllEnabled = true;
+
+    audioPlayer.addEventListener('error', function(e) {
+      $('#loadingModal').modal('hide');
+      $('#errorModal').modal('show');
+      console.log(e);
+    });
+
+    audioPlayer.addEventListener('canplay', function() {
+      audioPlayer.play();
+      $('#loadingModal').modal('hide');
+    });
+
+    audioPlayer.addEventListener('ended', function() {
+      if (playingAll) {
+        var nextRow = currentRow.nextSibling;
+        if (nextRow) {
+          playNode(nextRow);
         } else {
-          nodeToPlay = currentRow;
+          cancelPlayAll();
         }
       }
-
-      playNode(nodeToPlay);
-    }
+    });
   }
 
-  function cancelPlayAll() {
-    if (playingAllEnabled) {
-      playingAll = false;
-      $('#playAllButton').removeClass('hidden');
-      $('#cancelPlayAllButton').addClass('hidden');
-      $('#loadingModal').addClass('fade');
-    }
-  }
 
-  //Nav Bar player functions
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////PLAYER FUNCTIONS////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
   function forward() {
     if (currentRow) {
       var nextRow = currentRow.nextSibling;
@@ -592,7 +780,11 @@
   }
 
   function backward() {
-    if (currentRow) {
+
+    //HTML 5 (if current time is higher than 5s then currentTime is set to 0)
+    if (audioPlayer && audioPlayer.currentTime > 5) {
+      audioPlayer.currentTime = 0;
+    } else if (currentRow) {
       var previousRow = currentRow.previousSibling;
       if (previousRow) {
         playNode(previousRow);
@@ -630,175 +822,10 @@
     return false;
   }
 
-  function updateNavBarTitle() {
-    
-    var titleNav = $('#actualSong');
-    var MAX_LENGTH = 40;
-
-    var setNavBarInfo = function(info) {
-      
-      titleNav.fadeOut(function() {
-        if (info.length > MAX_LENGTH + 3) {
-          titleNav.html(info.substring(0, MAX_LENGTH) + '...');
-        } else {
-          titleNav.html(info);
-        }
-
-        titleNav.fadeIn();
-      });
-    }
-
-    if (currentRow) {
-      if (titleNav.html() == currentRow.info.title || titleNav.html() == currentRow.info.title.substring(0, MAX_LENGTH) + '...') {
-        setNavBarInfo(currentRow.info.artist);
-      } else {
-        setNavBarInfo(currentRow.info.title);
-      } 
-    }
-  }
-  
-  //Main Function
-  function updateSearch(stop) {
-    
-    if (playingAll && !stop) {
-      $('#btnConfirmSearch').off('click');
-      $('#btnConfirmSearch').on('click', updateSearch.bind({}, true));
-      $('#playingAllModal').modal('show');
-    } else {
-
-      var PATTERN = new RegExp('^http\://(www\.)?goear\.com/(listen|playlist)/([a-zA-Z0-9]{7})/');
-
-      var search = $('#searchInput').val();
-      var type = $('#searchType').val();
-      var regex = PATTERN.exec(search);
-
-      if (regex) {              //Minihack: detect goear URLs
-        var type = regex[2];
-        var id = regex[3];
-        
-        if (type === 'playlist') {  //Playlists can be searched by their ID
-          
-          $('#searchInput').val(id);
-          $('#searchType').val('playlists');
-          
-          updateSearch(stop);   //Reestart seatch
-        } else {                //Songs cannot be searched by their ID
-          $('#directSearchModal').modal('show');
-          
-          /* TODO: TEST METHOD!!!!
-          $('#searchInput').val(id);
-          $('#searchType').val('songs');
-          
-          $('#loadingModal').modal('show');
-          
-          //Is the only way to get song information
-          sendReq('http://www.goear.com/externaltrackhost.php?f=' + id, 'GET', null, null, function() {
-            
-            //Parse XML
-            var xmlDoc = new DOMParser().parseFromString(this.responseText,'text/xml');
-            var elem = xmlDoc.getElementsByTagName('song')[0];
-            var title = elem.getAttribute('title');
-            var artist = elem.getAttribute('artist');
-            
-            if (artist === '' && title === '') {    //That song does not exist
-              $('#noResultsModal').modal('show');
-            } else {
-              //Show song table and hide play list table
-              $('#playlistTable').addClass('hidden');
-              $('#songsTable').removeClass('hidden');
-              $('#songs').empty();
-              
-              //Analyze song using the default method
-              var simulatedJSONResponse = {};
-              simulatedJSONResponse.responseText = JSON.stringify([{
-                id: id,
-                artist: artist,
-                title: title,
-                imgpath: 'http://static.goear.com/img/nodata.png',
-                songtime: '<em>No disponible</em>'
-              }]);
-              
-              processSongs.apply(simulatedJSONResponse);
-              
-            }
-          });*/
-        }
-
-      } else if (showingFavs || (currentSearch !== search.trim() || searchType !== type)) {
-        //Only search when current search differs from new search
-
-        $('#loadMoreBtn').removeClass('hidden');
-        $('#songs').empty();
-        //$('#navBarSongList').empty();
-        $('#playlists').empty();
-        $('#noFavsSongsAlert').addClass('hidden');
-        $('#buttonViewFavs').removeClass('active');
-      
-        cancelPlayAll();
-
-        //Define global variables
-        currentSearch = search;
-        searchType = type;
-        page = 0;
-        showingFavs = false;
-
-        //Start search
-        updateURL();    
-        loadResults();
-      }
-    }
-    
-    //Avoid default action
-    return stop;
-  }
-  
-  //Set forms and buttons actions
-  $('#formOnline').on('submit', updateSearch.bind({}, false));
-  $('#cancelPlayAllButton').on('click', cancelPlayAll);
-  $('#playAllButton').on('click', playAll);
-  $('#loadMoreBtn').on('click', loadResults);
-  $('#downloadLink').on('click', function() {
-    $('#rightButtonModal').modal('show');
-    return false;
-  });
-  $('#btnDownloadDesktopVersion').on('click', function() {
-    $('#downloadDesktopBtn').click();
-  });
-  
   //Hide download button on iOS devides
   var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
   if (iOS) {
     $('#downloadLink').addClass('hidden');
-  }
-
-  //Set play icon
-  playIcon.setAttribute('class','glyphicon glyphicon-play');
-
-  //Set up audio player
-  if (audioPlayer) {
-    playingAllEnabled = true;
-
-    audioPlayer.addEventListener('error', function(e) {
-      $('#loadingModal').modal('hide');
-      $('#errorModal').modal('show');
-      console.log(e);
-    });
-
-    audioPlayer.addEventListener('canplay', function() {
-      audioPlayer.play();
-      $('#loadingModal').modal('hide');
-    });
-
-    audioPlayer.addEventListener('ended', function() {
-      if (playingAll) {
-        var nextRow = currentRow.nextSibling;
-        if (nextRow) {
-          playNode(nextRow);
-        } else {
-          cancelPlayAll();
-        }
-      }
-    });
   }
 
   //Set actions for navbar player buttons
@@ -817,50 +844,68 @@
   $('#playerBtnPause').click(pause);
   $('#playerBtnForward').click(forward);
 
-  //Init favorites
-  var favoritesSongsJSON = localStorage.getItem(FAV_SONGS_ITEM_NAME);
-  if (favoritesSongsJSON) {
-    favoritesSongs = JSON.parse(favoritesSongsJSON);
-  }
-
-  //Set action to fire when favorites button is clicked
-  $('#playerBtnFav').click(function() {
-
-    var songInfo = currentRow.info;
-
-    //Look for that song on the fav array
-    var pos = isSongFavorite(songInfo.id);
-
-    if (pos === -1) {
-      //Add song to favorites
-      favoritesSongs.push(songInfo);
-
-      if (favoritesSongs.length === 1) {
-        $('#favsModal').modal('show');
-      }
-    } else {
-      //Remove song from favorites
-      favoritesSongs.splice(pos, 1);
-    }
-
-    //Refresh favs table
-    if (showingFavs) {
-      showFavsTable(true, false);
-    }
-
-    //Write to local storage
-    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
-
-    //Toggle button
-    $('#playerBtnFav').button('toggle');
+  $('#downloadLink').on('click', function() {
+    $('#rightButtonModal').modal('show');
+    return false;
   });
 
-  $('#buttonViewFavs').on('click', showFavsTable.bind({}, false));
 
-  //Show favs songs on start (not enabled - user should click)
-  //showFavsTable();
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////PLAY ALL////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
 
-  //Get focus info
+  function playAll() {
+    if (playingAllEnabled) {
+      playingAll = true;
+
+      $('#playAllButton').addClass('hidden');
+      $('#cancelPlayAllButton').removeClass('hidden');
+      $('#loadingModal').removeClass('fade');
+
+      var songsTable = document.getElementById('songs');
+      var nodeToPlay = songsTable.firstChild;
+
+      if (currentRow && currentRow.parentNode === songsTable) {
+        if (audioPlayer.ended) {
+          if(currentRow.nextSibling) {
+            nodeToPlay = currentRow.nextSibling;
+          }
+        } else {
+          nodeToPlay = currentRow;
+        }
+      }
+
+      playNode(nodeToPlay);
+    }
+  }
+
+  function cancelPlayAll() {
+    if (playingAllEnabled) {
+      playingAll = false;
+      $('#playAllButton').removeClass('hidden');
+      $('#cancelPlayAllButton').addClass('hidden');
+      $('#loadingModal').addClass('fade');
+    }
+  }
+
+  //Set action to be fired when buttons are clicked
+  $('#cancelPlayAllButton').on('click', cancelPlayAll);
+  $('#playAllButton').on('click', playAll);
+
+
+  //////////////////////////////////////////////////////////////////////
+  ///////////////////////////INIT OTHER THINGS//////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
+  $('#btnDownloadDesktopVersion').on('click', function() {
+    $('#downloadDesktopBtn').click();
+  });
+
+
+  //////////////////////////////////////////////////////////////////////
+  ////////////////////////////GET FOCUS INFO////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+
   var focused = true;
 
   window.onfocus = function() {
@@ -886,4 +931,5 @@
       }
     }
   }
+
 })();
