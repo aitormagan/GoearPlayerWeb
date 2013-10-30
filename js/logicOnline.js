@@ -849,6 +849,23 @@
     return false;
   });
 
+  //Multimedia Buttons
+  window.onkeydown = function(e) {
+    if (e.keyCode == 176) { //Next
+      forward();
+    } else if (e.keyCode == 177) {  //Previous
+      backward();
+    } else if (e.keyCode == 179) {  //Play/Pause (only HTML5 Player)
+      if (audioPlayer !== null) {
+        if (audioPlayer.paused) {
+          audioPlayer.play();
+        } else {
+          audioPlayer.pause();
+        }
+      }
+    }
+  }
+
 
   //////////////////////////////////////////////////////////////////////
   //////////////////////////////PLAY ALL////////////////////////////////
@@ -914,22 +931,5 @@
   window.onblur = function() {
     focused = false;
   };
-
-  //Multimedia Buttons
-  window.onkeydown = function(e) {
-    if (e.keyCode == 176) { //Next
-      forward();
-    } else if (e.keyCode == 177) {  //Previous
-      backward();
-    } else if (e.keyCode == 179) {  //Play/Pause (only HTML5 Player)
-      if (audioPlayer !== null) {
-        if (audioPlayer.paused) {
-          audioPlayer.play();
-        } else {
-          audioPlayer.pause();
-        }
-      }
-    }
-  }
 
 })();
