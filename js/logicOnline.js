@@ -490,6 +490,13 @@
       //Empty songs table
       $('#songs').empty();
 
+      //Set playing all button properly
+      if (playingAllEnabled && playingAll && continuePlayingAll) {
+        playAll();
+      } else if (playingAllEnabled) {     //Playing all is enabled but not active
+        cancelPlayAll();
+      }
+
       if (favoritesSongs.length === 0) {
       
         $('#songsTable').addClass('hidden');
@@ -551,13 +558,6 @@
           downButton.onclick = removeAndUpdate.bind(this, i);
           optionsCell.appendChild(downButton);
         }
-      }
-
-      //Set playing all button properly
-      if (playingAllEnabled && playingAll && continuePlayingAll) {
-        playAll();
-      } else if (playingAllEnabled) {     //Playing all is enabled but not active
-        cancelPlayAll();
       }
     }
   }
