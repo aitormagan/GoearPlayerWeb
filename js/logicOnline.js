@@ -1,4 +1,4 @@
-//(function() {
+(function() {
 
   //////////////////////////////////////////////////////////////////////
   /////////////////////////////VARIABLES////////////////////////////////
@@ -531,14 +531,14 @@
 
           $('#favPropertyTitle').val(favoritesSongs[pos].title);
           $('#favPropertyArtist').val(favoritesSongs[pos].artist);
-          $('#favPropertyImageUpdate').attr('checked', true);
+          $('#favPropertyImageUpdate').prop('checked', true);
 
           $('#favUpdateApplyBtn').off('click');
           $('#favUpdateApplyBtn').on('click', function() {
 
             var title = $('#favPropertyTitle').val();
             var artist = $('#favPropertyArtist').val();
-            var updateImageURL = $('#favPropertyImageUpdate').is(':checked');
+            var updateImageURL = $('#favPropertyImageUpdate').prop('checked');
 
             changeFavProperties(pos, title, artist, updateImageURL);
             showFavsTable(true, true);
@@ -992,4 +992,4 @@
     focused = false;
   };
 
-//})();
+})();
