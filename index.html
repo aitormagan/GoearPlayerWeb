@@ -206,12 +206,12 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h3 class="modal-title" id="rightButtonLabel">Cambiar Información de la Canción</h3>
+				<h3 class="modal-title">Cambiar Información de la Canción</h3>
 			</div>
 			<div class="modal-body">
 				<div class="form-horizontal" role="form">
 					<div class="form-group">
-						<label for="favPropertyTitle3" class="col-sm-2 control-label">Título</label>
+						<label for="favPropertyTitle" class="col-sm-2 control-label">Título</label>
 						<div class="col-sm-10">
 							<input class="form-control" id="favPropertyTitle" placeholder="Título">
 						</div>
@@ -226,7 +226,7 @@
 						<div class="col-sm-offset-2 col-sm-10">
 							<div class="checkbox">
 								<label>
-									<input type="checkbox"> Actualizar imágen
+									<input id="favPropertyImageUpdate" type="checkbox"> Actualizar imágen del artista en base al nuevo artista introducido
 								</label>
 							</div>
 						</div>
@@ -234,7 +234,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-primary" data-dismiss="modal">Aplicar</button>
+				<button id="favUpdateApplyBtn" class="btn btn-primary" data-dismiss="modal">Aplicar</button>
 				<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancelar</button>
 			</div>
 		</div>
@@ -382,7 +382,7 @@
 							<th>Título</th>
 							<th>Artista</th>
 							<th>Duración</th>
-							<th style="width: 60px;"></th>
+							<th style="width: 80px;"></th>
 						</tr>
 						</thead>
 						<tbody id="songs"></tbody>

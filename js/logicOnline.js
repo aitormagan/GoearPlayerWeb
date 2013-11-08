@@ -1,4 +1,4 @@
-(function() {
+//(function() {
 
   //////////////////////////////////////////////////////////////////////
   /////////////////////////////VARIABLES////////////////////////////////
@@ -458,6 +458,17 @@
 
   }
 
+  function changeFavProperties(pos, title, artist, updateImageURL) {
+    favoritesSongs[pos].title = title;
+    favoritesSongs[pos].artist = artist;
+
+    if (updateImageURL) {
+      favoritesSongs[pos].imgpath = 'http://www.goear.com/band/picture/' + artist;
+    }
+
+    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
+  }
+
   function exchangeFavPosition(initial, final) {
     var aux = favoritesSongs[final];
     favoritesSongs[final] = favoritesSongs[initial];
@@ -515,6 +526,27 @@
           exchangeFavPosition(initial, final);
           showFavsTable(true, true);
         }
+
+        function changePropertiesAndUpdate(pos) {
+
+          $('#favPropertyTitle').val(favoritesSongs[pos].title);
+          $('#favPropertyArtist').val(favoritesSongs[pos].artist);
+          $('#favPropertyImageUpdate').attr('checked', true);
+
+          $('#favUpdateApplyBtn').off('click');
+          $('#favUpdateApplyBtn').on('click', function() {
+
+            var title = $('#favPropertyTitle').val();
+            var artist = $('#favPropertyArtist').val();
+            var updateImageURL = $('#favPropertyImageUpdate').is(':checked');
+
+            changeFavProperties(pos, title, artist, updateImageURL);
+            showFavsTable(true, true);
+
+          });
+
+          $('#changeFavPropertiesModal').modal('show');
+        }
         
         function removeAndUpdate(pos) {
 
@@ -550,6 +582,13 @@
             downButton.onclick = exchangeAndUpdate.bind(this, i, i+1);
             optionsCell.appendChild(downButton);
           }
+
+          //Edit button
+          var editButton = document.createElement('span');
+          editButton.setAttribute('class','glyphicon glyphicon-pencil');
+          editButton.setAttribute('style', 'cursor: pointer; color: #777777;');
+          editButton.onclick = changePropertiesAndUpdate.bind(this, i);
+          optionsCell.appendChild(editButton);
           
           //Delete button
           var downButton = document.createElement('span');
@@ -953,4 +992,4 @@
     focused = false;
   };
 
-})();
+//})();
