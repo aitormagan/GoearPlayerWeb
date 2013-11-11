@@ -16,7 +16,7 @@
   var playIcon = document.createElement('span');
   var audioPlayer = document.getElementById('audioPlayer');
   var dewPlayer = document.getElementById("dewplayerjs");
-  var favoritesSongs = [];
+  var favoriteSongs = [];
   var FAV_SONGS_ITEM_NAME = 'favSongs';
   var showingFavs = false;
   var playingPlaylist = false;
@@ -426,8 +426,8 @@
   function isSongFavorite(songId) {
 
     var pos = -1;
-    for (var i = 0; i < favoritesSongs.length && pos === -1; i++) {
-      if (favoritesSongs[i].id === songId) {
+    for (var i = 0; i < favoriteSongs.length && pos === -1; i++) {
+      if (favoriteSongs[i].id === songId) {
         pos = i;
       }
     }
@@ -450,35 +450,35 @@
       }
 
       //Add song to favorites
-      favoritesSongs.push(minInfo);
+      favoriteSongs.push(minInfo);
 
       //Show info about favorite songs
-      if (favoritesSongs.length === 1) {
+      if (favoriteSongs.length === 1) {
         $('#favsModal').modal('show');
       }
     } else {
       //Remove song from favorites
-      favoritesSongs.splice(pos, 1);
+      favoriteSongs.splice(pos, 1);
     }
 
     //Write to local storage
-    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
+    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoriteSongs));
 
   }
 
   function changeFavProperties(pos, title, artist) {
-    favoritesSongs[pos].title = title;
-    favoritesSongs[pos].artist = artist;
-    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
+    favoriteSongs[pos].title = title;
+    favoriteSongs[pos].artist = artist;
+    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoriteSongs));
   }
 
   function exchangeFavPosition(initial, final) {
-    var aux = favoritesSongs[final];
-    favoritesSongs[final] = favoritesSongs[initial];
-    favoritesSongs[initial] = aux;
+    var aux = favoriteSongs[final];
+    favoriteSongs[final] = favoriteSongs[initial];
+    favoriteSongs[initial] = aux;
 
     //Save item with new order
-    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
+    localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoriteSongs));
   }
 
   function showFavsTable(stop, continuePlayingAll) {
@@ -511,7 +511,7 @@
         cancelPlayAll();
       }
 
-      if (favoritesSongs.length === 0) {
+      if (favoriteSongs.length === 0) {
       
         $('#songsTable').addClass('hidden');
         $('#noFavsSongsAlert').removeClass('hidden');
@@ -520,7 +520,7 @@
       } else {
 
         //Simulate response
-        processSongs(JSON.stringify(favoritesSongs));
+        processSongs(JSON.stringify(favoriteSongs));
 
         //Write up and down buttons
         var songs = document.getElementById('songs').children;
@@ -532,10 +532,10 @@
 
         function changePropertiesAndUpdate(pos) {
 
-          $('#favPropertyTitle').val(favoritesSongs[pos].title);
-          $('#favPropertyArtist').val(favoritesSongs[pos].artist);
-          $('#favPropertyDuration').val(favoritesSongs[pos].songtime);
-          $('#favPropertyID').val(favoritesSongs[pos].id);
+          $('#favPropertyTitle').val(favoriteSongs[pos].title);
+          $('#favPropertyArtist').val(favoriteSongs[pos].artist);
+          $('#favPropertyDuration').val(favoriteSongs[pos].songtime);
+          $('#favPropertyID').val(favoriteSongs[pos].id);
 
           $('#favUpdateApplyBtn').off('click');
           $('#favUpdateApplyBtn').on('click', function() {
@@ -546,6 +546,13 @@
             changeFavProperties(pos, title, artist);
             showFavsTable(true, true);
 
+            //If the song is currently playing, its info must be updated on the player
+            if (currentRow.info.id === favoriteSongs[pos].id) {
+              $('#title').html(title || 'N/A');
+              $('#artist').html(artist || 'N/A');
+              $('#songimg').attr('src', 'http://www.goear.com/band/picture/' + artist);
+            }
+
           });
 
           $('#changeFavPropertiesModal').modal('show');
@@ -555,12 +562,12 @@
 
           var continuePlaying = true;
 
-          if(currentRow.info.id === favoritesSongs[pos].id) {
+          if(currentRow.info.id === favoriteSongs[pos].id) {
             $('#playerBtnFav').removeClass('active');
             continuePlaying = false;
           }
 
-          addOrRemoveFavorite(favoritesSongs[pos]);
+          addOrRemoveFavorite(favoriteSongs[pos]);
           showFavsTable(true, continuePlaying);
         }
 
@@ -624,9 +631,9 @@
   $('#buttonViewFavs').on('click', showFavsTable.bind({}, false));
 
   //Init favorites
-  var favoritesSongsJSON = localStorage.getItem(FAV_SONGS_ITEM_NAME);
-  if (favoritesSongsJSON) {
-    favoritesSongs = JSON.parse(favoritesSongsJSON);
+  var favoriteSongsJSON = localStorage.getItem(FAV_SONGS_ITEM_NAME);
+  if (favoriteSongsJSON) {
+    favoriteSongs = JSON.parse(favoriteSongsJSON);
   }
 
 
