@@ -441,8 +441,16 @@
     var pos = isSongFavorite(songInfo.id);
 
     if (pos === -1) {
+      //Process song
+      var minInfo = {
+        title: songInfo.title,
+        artist: songInfo.artist,
+        id: songInfo.id,
+        songtime: songInfo.songtime
+      }
+
       //Add song to favorites
-      favoritesSongs.push(songInfo);
+      favoritesSongs.push(minInfo);
 
       //Show info about favorite songs
       if (favoritesSongs.length === 1) {
@@ -458,14 +466,9 @@
 
   }
 
-  function changeFavProperties(pos, title, artist, updateImageURL) {
+  function changeFavProperties(pos, title, artist) {
     favoritesSongs[pos].title = title;
     favoritesSongs[pos].artist = artist;
-
-    if (updateImageURL) {
-      favoritesSongs[pos].imgpath = 'http://www.goear.com/band/picture/' + artist;
-    }
-
     localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoritesSongs));
   }
 
@@ -531,16 +534,16 @@
 
           $('#favPropertyTitle').val(favoritesSongs[pos].title);
           $('#favPropertyArtist').val(favoritesSongs[pos].artist);
-          $('#favPropertyImageUpdate').prop('checked', true);
+          $('#favPropertyDuration').val(favoritesSongs[pos].songtime);
+          $('#favPropertyID').val(favoritesSongs[pos].id);
 
           $('#favUpdateApplyBtn').off('click');
           $('#favUpdateApplyBtn').on('click', function() {
 
             var title = $('#favPropertyTitle').val();
             var artist = $('#favPropertyArtist').val();
-            var updateImageURL = $('#favPropertyImageUpdate').prop('checked');
 
-            changeFavProperties(pos, title, artist, updateImageURL);
+            changeFavProperties(pos, title, artist);
             showFavsTable(true, true);
 
           });
@@ -703,7 +706,7 @@
 
     //Set image
     var img = document.getElementById('songimg');
-    img.setAttribute('src', songInfo.imgpath);
+    img.setAttribute('src', songInfo.imgpath || 'http://www.goear.com/band/picture/' + songInfo.artist);
 
     //Update fav button
     $('#playerBtnFav').removeClass('active');
