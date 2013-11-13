@@ -153,6 +153,10 @@
 
     return correct;
   }
+  
+  function getArtistImg(artist) {
+    return 'http://www.goear.com/band/picture/' + artist;
+  }
 
 
   //////////////////////////////////////////////////////////////////////
@@ -550,7 +554,7 @@
             if (currentRow.info.id === favoriteSongs[pos].id) {
               $('#title').html(title || 'N/A');
               $('#artist').html(artist || 'N/A');
-              $('#songimg').attr('src', 'http://www.goear.com/band/picture/' + artist);
+              $('#songimg').attr('src', getArtistImg(artist));
             }
 
           });
@@ -713,7 +717,7 @@
 
     //Set image
     var img = document.getElementById('songimg');
-    img.setAttribute('src', songInfo.imgpath || 'http://www.goear.com/band/picture/' + songInfo.artist);
+    img.setAttribute('src', songInfo.imgpath || getArtistImg(songInfo.artist));
 
     //Update fav button
     $('#playerBtnFav').removeClass('active');

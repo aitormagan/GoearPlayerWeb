@@ -176,6 +176,19 @@
       $('#currentTime').html('');
 
     });
+    
+    //IE hack: fire pause event on end
+    audioPlayer.addEventListener('ended', audioPlayer.pause);
+    
+    //Action when seeking
+    audioPlayer.addEventListener('seeking', function(e) {
+      $('#progressBarPlayer').addClass('progress-striped active');
+    });
+    
+    //Action when seeked
+    audioPlayer.addEventListener('seeked', function(e) {
+      $('#progressBarPlayer').removeClass('progress-striped active');
+    });
 
     $('#playerBtnRepeat').on('click', function() {
       audioPlayer.loop = !audioPlayer.loop;
