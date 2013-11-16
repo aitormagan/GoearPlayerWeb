@@ -65,14 +65,14 @@
     }catch (e) {
       onError();
     }
-    
-    //Avoid defualt action
-    return false;
-
   }
   
   //Set form action
-  $('#formReports').on('submit', searchReport);
+  $('#formReports').on('submit', function(ev) {
+    ev.preventDefault();
+    $('#reportNumber').blur();
+    searchReport();
+  });
   
   
 })();

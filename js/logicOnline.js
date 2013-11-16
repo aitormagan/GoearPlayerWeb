@@ -414,13 +414,14 @@
         loadMoreResults();
       }
     }
-
-    //Avoid default action
-    return stop;
   }
 
-  $('#formOnline').on('submit', newSearch.bind({}, false));
   $('#loadMoreBtn').on('click', loadMoreResults);
+  $('#formOnline').on('submit', function(ev) {
+    ev.preventDefault();
+    $('#searchInput').blur();
+    newSearch(false);
+  })
 
 
   //////////////////////////////////////////////////////////////////////
