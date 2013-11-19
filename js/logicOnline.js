@@ -624,6 +624,7 @@
 
     //Refresh favs table
     if (showingFavs) {
+      $('#noFavsSongsAlert').addClass('hidden');
       showFavsTable(true, false);
     }
 
