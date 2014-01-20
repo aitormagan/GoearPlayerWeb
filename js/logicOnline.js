@@ -248,7 +248,7 @@
                 $('#playlistTable').addClass('hidden');
                 $('#songsTable').removeClass('hidden');
                 $('#loadMoreBtn').addClass('hidden');
-                $('#downloadPlayListButton').removeClass('hidden');
+                //$('#downloadPlayListButton').removeClass('hidden');
 
                 if (playingAllEnabled) {
                   $('#playAllButton').removeClass('hidden');
@@ -676,8 +676,8 @@
 
   function playSong(songInfo) {
 
-    var songURL = 'http://goear.com/plimiter.php?f=' + songInfo.id;
-    //var songURL = 'http://www.goear.com/action/sound/get/' + songInfo.id
+    //var songURL = 'http://goear.com/plimiter.php?f=' + songInfo.id;
+    var songURL = 'http://www.goear.com/action/sound/get/' + songInfo.id
       
     //Show loading modal
     if (focused) {
@@ -728,8 +728,13 @@
     }
 
     //Update Link
-    var link = document.getElementById('downloadLink');
-    link.setAttribute('href', songURL);
+    var downloadLink = document.getElementById('downloadLink');
+    downloadLink.setAttribute('href', songURL);
+
+    //Buy Link
+    var buyLink = document.getElementById('buyLink');
+    buyLink.setAttribute('href', 'http://www.goear.com/options/buy/' + songInfo.id);
+    
     
     //Set audio
     if (audioPlayer !== null) {
@@ -920,9 +925,8 @@
   $('#playerBtnPause').click(pause);
   $('#playerBtnForward').click(forward);
 
-  $('#downloadLink').on('click', function() {
-    $('#rightButtonModal').modal('show');
-    return false;
+  $('#getBtn').on('click', function() {
+    $('#getSongModal').modal('show');
   });
 
   //Multimedia Buttons
@@ -994,6 +998,10 @@
     $('#downloadDesktopBtn').click();
   });
 
+  /*$('#downloadLink').on('click', function() {
+    $('#rightButtonModal').modal('show');
+    return false;
+  });*/
 
   //////////////////////////////////////////////////////////////////////
   ////////////////////////////GET FOCUS INFO////////////////////////////
