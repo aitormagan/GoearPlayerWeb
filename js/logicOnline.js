@@ -12,12 +12,13 @@
   var currentRow = null;
   var currentNavBarUpdater = null;
   var searchType;
-  var baseTitle = document.title;
+  var BASE_TITLE = document.title;
   var playIcon = document.createElement('span');
   var audioPlayer = document.getElementById('audioPlayer');
   var dewPlayer = document.getElementById("dewplayerjs");
   var favoriteSongs = [];
   var FAV_SONGS_ITEM_NAME = 'favSongs';
+  var PLAY_ICON = '▶ ';
   var showingFavs = false;
   var playingPlaylist = false;
 
@@ -62,7 +63,7 @@
 
   function updateURL(title, search, type) {
     window.history.pushState('', '', '?search=' + search + '&type=' + type);
-    document.title = baseTitle + ' - ' + title;
+    //document.title = BASE_TITLE + ' - ' + title;
   }
   
   function showNoMatchesAlert() {
@@ -248,7 +249,7 @@
                 $('#playlistTable').addClass('hidden');
                 $('#songsTable').removeClass('hidden');
                 $('#loadMoreBtn').addClass('hidden');
-                $('#downloadPlayListButton').removeClass('hidden');
+                //$('#downloadPlayListButton').removeClass('hidden');
 
                 if (playingAllEnabled) {
                   $('#playAllButton').removeClass('hidden');
@@ -676,8 +677,8 @@
 
   function playSong(songInfo) {
 
-    var songURL = 'http://goear.com/plimiter.php?f=' + songInfo.id;
-    //var songURL = 'http://www.goear.com/action/sound/get/' + songInfo.id
+    //var songURL = 'http://goear.com/plimiter.php?f=' + songInfo.id;
+    var songURL = 'http://www.goear.com/action/sound/get/' + songInfo.id
       
     //Show loading modal
     if (focused) {
@@ -699,11 +700,13 @@
       
     //Set title
     var title = $('#title');
-    title.html(songInfo.title || 'N/A');
+    var titleText = songInfo.title || 'N/A'
+    title.html(titleText);
 
     //Set artist
     var artist = $('#artist');
-    artist.html(songInfo.artist || 'N/A');
+    var artistText = songInfo.artist || 'N/A';
+    artist.html(artistText);
 
     //Set songtime
     var songtime = $('#songtime');
@@ -718,8 +721,12 @@
     goearID.html(songInfo.id || 'N/A');
 
     //Set image
+    var imgpath = songInfo.imgpath && songInfo.imgpath.indexOf('nodatasong.png') == -1 ? songInfo.imgpath : getArtistImg(songInfo.artist);
     var img = document.getElementById('songimg');
-    img.setAttribute('src', songInfo.imgpath || getArtistImg(songInfo.artist));
+    img.setAttribute('src', imgpath);
+	
+	//Update document title
+	document.title = titleText + ' - ' + artistText + ' - ' + BASE_TITLE;
 
     //Update fav button
     $('#playerBtnFav').removeClass('active');
@@ -728,8 +735,13 @@
     }
 
     //Update Link
-    var link = document.getElementById('downloadLink');
-    link.setAttribute('href', songURL);
+    var downloadLink = document.getElementById('downloadLink');
+    downloadLink.setAttribute('href', songURL);
+
+    //Buy Link
+    var buyLink = document.getElementById('buyLink');
+    buyLink.setAttribute('href', 'http://www.goear.com/options/buy/' + songInfo.id);
+    
     
     //Set audio
     if (audioPlayer !== null) {
@@ -837,6 +849,15 @@
         }
       }
     });
+	
+    audioPlayer.addEventListener('play', function() {
+        document.title = PLAY_ICON + document.title;
+    });
+	
+    audioPlayer.addEventListener('pause', function() {
+        document.title = document.title.replace(PLAY_ICON, '');
+    });
+	
   }
 
 
@@ -920,9 +941,8 @@
   $('#playerBtnPause').click(pause);
   $('#playerBtnForward').click(forward);
 
-  $('#downloadLink').on('click', function() {
-    $('#rightButtonModal').modal('show');
-    return false;
+  $('#getBtn').on('click', function() {
+    $('#getSongModal').modal('show');
   });
 
   //Multimedia Buttons
@@ -994,6 +1014,10 @@
     $('#downloadDesktopBtn').click();
   });
 
+  /*$('#downloadLink').on('click', function() {
+    $('#rightButtonModal').modal('show');
+    return false;
+  });*/
 
   //////////////////////////////////////////////////////////////////////
   ////////////////////////////GET FOCUS INFO////////////////////////////
