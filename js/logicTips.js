@@ -63,5 +63,7 @@
     printActualTip();
   }
   
+  setInterval($('#btnNextTip').click.bind($('#btnNextTip')), 15000);
+  
   
 })();

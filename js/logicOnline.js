@@ -21,6 +21,9 @@
   var PLAY_ICON = '▶ ';
   var showingFavs = false;
   var playingPlaylist = false;
+  var rowSelectedContextMenu = null;
+  var ADD_FAV_SONG_TEXT = 'Añadir a la lista de favoritas';
+  var DELETE_FAV_SONG_TEXT = 'Borrar de la lista de favoritas';
 
   //Set play icon class
   playIcon.setAttribute('class','glyphicon glyphicon-play');
@@ -123,10 +126,40 @@
             currentRow = elem;
             elem.setAttribute('style', HIGHLIGHTED_STYLE);
             playIconCell.appendChild(playIcon);
-          }
-
+          }  
+		  
           document.getElementById('songs').appendChild(elem);
-
+		  
+          //Context Menu!
+          $(elem).contextmenu({
+            target: '#context-menu',
+            before: function (e, element) {
+              rowSelectedContextMenu = element.context;
+              
+              if (isSongFavorite(element.context.info.id) >= 0) {
+                $('#contextMenuFav').html(DELETE_FAV_SONG_TEXT);
+              } else {
+                $('#contextMenuFav').html(ADD_FAV_SONG_TEXT);
+              }
+              
+              e.preventDefault();
+              return true;
+            },
+            onItem: function(e, item) {
+              switch(item[0].id) {
+              case 'contextMenuPlay':
+                playNode(rowSelectedContextMenu);
+                break;
+              case 'contextMenuAdquire':
+                showDownloadDialog(rowSelectedContextMenu.info);
+                break;
+              case 'contextMenuFav':
+                addOrRemoveFavorite(rowSelectedContextMenu.info);
+                break;
+              }
+            }
+          });
+		  
         } else {
           $('#loadingModal').modal('hide');
           $('#noResultsModal').modal('show');
@@ -158,7 +191,25 @@
   function getArtistImg(artist) {
     return 'http://www.goear.com/band/picture/' + artist;
   }
+  
+  function getSongURL(songInfo) {
+      //return songInfo.mp3path;
+      //return 'http://www.goear.com/plimiter.php?f=' + songInfo.id;
+      return 'http://www.goear.com/action/sound/get/' + songInfo.id
+  }
+  
+  function showDownloadDialog(songInfo) {
+    //Update Link
+    var downloadLink = document.getElementById('downloadLink');
+    downloadLink.setAttribute('href', getSongURL(songInfo));
 
+    //Buy Link
+    var buyLink = document.getElementById('buyLink');
+    buyLink.setAttribute('href', 'http://www.goear.com/options/buy/' + songInfo.id);
+    
+    //Show dialog
+    $('#getSongModal').modal('show');
+  }
 
   //////////////////////////////////////////////////////////////////////
   ///////////////////////////////SONGS//////////////////////////////////
@@ -469,7 +520,28 @@
 
     //Write to local storage
     localStorage.setItem(FAV_SONGS_ITEM_NAME, JSON.stringify(favoriteSongs));
-
+    
+    //Update View
+    if (showingFavs) {
+      $('#noFavsSongsAlert').addClass('hidden');
+      
+      var continuePlaying = true;
+      if(currentRow.info.id === songInfo.id) {
+        continuePlaying = false;
+      }
+      
+      showFavsTable(true, continuePlaying);
+    }
+    
+    //Enable or disable player favourite button 
+    if (currentRow.info.id == songInfo.id) {
+      if(isSongFavorite(songInfo.id) >= 0) {
+        $('#playerBtnFav').addClass('active');
+      } else {
+        $('#playerBtnFav').removeClass('active');
+      }
+    }
+    
   }
 
   function changeFavProperties(pos, title, artist) {
@@ -563,19 +635,6 @@
 
           $('#changeFavPropertiesModal').modal('show');
         }
-        
-        function removeAndUpdate(pos) {
-
-          var continuePlaying = true;
-
-          if(currentRow.info.id === favoriteSongs[pos].id) {
-            $('#playerBtnFav').removeClass('active');
-            continuePlaying = false;
-          }
-
-          addOrRemoveFavorite(favoriteSongs[pos]);
-          showFavsTable(true, continuePlaying);
-        }
 
         for (var i = 0; i < songs.length; i++) {
 
@@ -610,7 +669,7 @@
           var downButton = document.createElement('span');
           downButton.setAttribute('class','glyphicon glyphicon-remove');
           downButton.setAttribute('style', 'cursor: pointer; color: #777777;');
-          downButton.onclick = removeAndUpdate.bind(this, i);
+          downButton.onclick = addOrRemoveFavorite.bind(this, favoriteSongs[i]);
           optionsCell.appendChild(downButton);
         }
       }
@@ -620,18 +679,7 @@
   //Set action to fire when favorite button is clicked
   //Add/Remove song from favorite songs
   $('#playerBtnFav').click(function() {
-
     addOrRemoveFavorite(currentRow.info);
-
-    //Refresh favs table
-    if (showingFavs) {
-      $('#noFavsSongsAlert').addClass('hidden');
-      showFavsTable(true, false);
-    }
-
-    //Toggle button
-    $('#playerBtnFav').button('toggle');
-
   });
 
   //Set action to fire when user wants to show favorite songs
@@ -677,8 +725,7 @@
 
   function playSong(songInfo) {
 
-    //var songURL = 'http://goear.com/plimiter.php?f=' + songInfo.id;
-    var songURL = 'http://www.goear.com/action/sound/get/' + songInfo.id
+    var songURL = getSongURL(songInfo);
       
     //Show loading modal
     if (focused) {
@@ -725,23 +772,14 @@
     var img = document.getElementById('songimg');
     img.setAttribute('src', imgpath);
 	
-	//Update document title
-	document.title = titleText + ' - ' + artistText + ' - ' + BASE_TITLE;
+    //Update document title
+    document.title = titleText + ' - ' + artistText + ' - ' + BASE_TITLE;
 
     //Update fav button
     $('#playerBtnFav').removeClass('active');
     if (isSongFavorite(songInfo.id) !== -1) {
       $('#playerBtnFav').button('toggle');
     }
-
-    //Update Link
-    var downloadLink = document.getElementById('downloadLink');
-    downloadLink.setAttribute('href', songURL);
-
-    //Buy Link
-    var buyLink = document.getElementById('buyLink');
-    buyLink.setAttribute('href', 'http://www.goear.com/options/buy/' + songInfo.id);
-    
     
     //Set audio
     if (audioPlayer !== null) {
@@ -942,7 +980,7 @@
   $('#playerBtnForward').click(forward);
 
   $('#getBtn').on('click', function() {
-    $('#getSongModal').modal('show');
+    showDownloadDialog(currentRow.info);
   });
 
   //Multimedia Buttons
